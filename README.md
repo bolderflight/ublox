@@ -80,7 +80,7 @@ if( gps.read(&uBloxData) ){
 }
 ```
 
-# Wiring and Pullups
+# Wiring
 Please refer to the [Teensy pinout diagrams](https://www.pjrc.com/teensy/pinout.html) for hardware serial port pin information. For development purposes, the uBlox NEO 7P receiver available from [CSG Shop](http://www.csgshop.com/product.php?id_product=201) and the uBlox M8 receiver available from [HobbyKing](http://www.hobbyking.com/hobbyking/store/__86436__UBLOX_Micro_M8N_GPS_Compass_Module_1pc_.html) were used. 
 
 For the uBlox M8 receiver available from [HobbyKing](http://www.hobbyking.com/hobbyking/store/__86436__UBLOX_Micro_M8N_GPS_Compass_Module_1pc_.html), taking the red wire as pin 1, the following is the GPS receiver pinout:
