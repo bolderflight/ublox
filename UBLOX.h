@@ -2,7 +2,7 @@
 UBLOX.h
 Brian R Taylor
 brian.taylor@bolderflight.com
-2016-07-06
+2016-09-02
 
 Copyright (c) 2016 Bolder Flight Systems
 
@@ -26,8 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 #define UBLOX_h
 
 #include "Arduino.h"				
-
-#define PAYLOAD_SIZE	96
 
 struct gpsData {
   unsigned long   iTOW;			  ///< [ms], GPS time of the navigation epoch
@@ -69,7 +67,8 @@ class UBLOX{
   private:
   	int _bus;
   	int _fpos;
-  	uint8_t _gpsPayload[PAYLOAD_SIZE];
+  	static const int _payloadSize = 96;
+  	uint8_t _gpsPayload[_payloadSize];
   	HardwareSerial* _port;
 	bool parse();
 	void calcChecksum(unsigned char* CK, unsigned char* payload, int length);

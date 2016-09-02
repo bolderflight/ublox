@@ -2,7 +2,7 @@
 UBLOX.cpp
 Brian R Taylor
 brian.taylor@bolderflight.com
-2016-07-06
+2016-09-02
 
 Copyright (c) 2016 Bolder Flight Systems
 
@@ -311,25 +311,25 @@ bool UBLOX::parse(){
         else {
 
             // grab the payload
-            if ( (_fpos-2) < PAYLOAD_SIZE )
+            if ( (_fpos-2) < _payloadSize )
                 ((unsigned char*)_gpsPayload)[_fpos-2] = c;
                 _fpos++;
 
             // compute checksum
-            if ( (_fpos-2) == PAYLOAD_SIZE ) {
-                calcChecksum(checksum,_gpsPayload,PAYLOAD_SIZE);
+            if ( (_fpos-2) == _payloadSize ) {
+                calcChecksum(checksum,_gpsPayload,_payloadSize);
             }
-            else if ( (_fpos-2) == (PAYLOAD_SIZE+1) ) {
+            else if ( (_fpos-2) == (_payloadSize+1) ) {
                 if ( c != checksum[0] )
                     _fpos = 0;
             }
-            else if ( (_fpos-2) == (PAYLOAD_SIZE+2) ) {
+            else if ( (_fpos-2) == (_payloadSize+2) ) {
                 _fpos = 0;
                 if ( c == checksum[1] ) {
                     return true;
                 }
             }
-            else if ( _fpos > (PAYLOAD_SIZE+4) ) {
+            else if ( _fpos > (_payloadSize+4) ) {
                 _fpos = 0;
             }
         }
