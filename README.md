@@ -13,7 +13,7 @@ Simply clone or download and extract the zipped library into your Arduino/librar
 
 Setup your uBlox receiver to output the UBX-NAV-PVT packet. Additional setup options include the desired GPS update frequency, the serial baud rate, and the expected dynamical environment. Setup of uBlox receivers can be accomplished using the [uBlox u-center software](https://www.u-blox.com/en/product/u-center-windows).
 
-**UBLOX(int bus)**
+**UBLOX(uint8_t bus)**
 A UBLOX object should be declared, specifying the hardware serial port the uBlox GPS receiver is connected to. For example, the following code declares a UBLOX object called *gps* located on the Teensy hardware serial port 3:
 
 ```C++

@@ -2,7 +2,7 @@
 UBLOX.h
 Brian R Taylor
 brian.taylor@bolderflight.com
-2016-09-02
+2016-09-22
 
 Copyright (c) 2016 Bolder Flight Systems
 
@@ -61,17 +61,17 @@ struct gpsData {
 
 class UBLOX{
   public:
-    UBLOX(int bus);
+    UBLOX(uint8_t bus);
     void begin(int baud);
     bool read(gpsData *gpsData_ptr);
   private:
-  	int _bus;
-  	int _fpos;
-  	static const int _payloadSize = 96;
+  	uint8_t _bus;
+  	uint8_t _fpos;
+  	static const uint8_t _payloadSize = 96;
   	uint8_t _gpsPayload[_payloadSize];
   	HardwareSerial* _port;
 	bool parse();
-	void calcChecksum(unsigned char* CK, unsigned char* payload, int length);
+	void calcChecksum(unsigned char* CK, unsigned char* payload, uint8_t length);
 };
 
 #endif

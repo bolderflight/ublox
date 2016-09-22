@@ -2,7 +2,7 @@
 UBLOX.cpp
 Brian R Taylor
 brian.taylor@bolderflight.com
-2016-09-02
+2016-09-22
 
 Copyright (c) 2016 Bolder Flight Systems
 
@@ -22,11 +22,14 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+// Teensy 3.1/3.2 || Teensy LC 
+#if defined(__MK20DX256__) || defined(__MKL26Z64__)
+
 #include "Arduino.h"
 #include "UBLOX.h"
 
 /* uBlox object, input the serial bus */
-UBLOX::UBLOX(int bus){
+UBLOX::UBLOX(uint8_t bus){
   _bus = bus; // serial bus
 }
 
@@ -338,11 +341,13 @@ bool UBLOX::parse(){
 }
 
 /* uBlox checksum */
-void UBLOX::calcChecksum(unsigned char* CK, unsigned char* payload, int length){
+void UBLOX::calcChecksum(unsigned char* CK, unsigned char* payload, uint8_t length){
 	CK[0] = 0;
     CK[1] = 0;
-    for (int i = 0; i < length; i++) {
+    for (uint8_t i = 0; i < length; i++) {
         CK[0] += payload[i];
         CK[1] += CK[0];
     }
 }
+
+#endif
