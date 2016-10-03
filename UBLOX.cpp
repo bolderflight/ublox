@@ -2,7 +2,7 @@
 UBLOX.cpp
 Brian R Taylor
 brian.taylor@bolderflight.com
-2016-09-22
+2016-10-03
 
 Copyright (c) 2016 Bolder Flight Systems
 
@@ -22,8 +22,9 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// Teensy 3.1/3.2 || Teensy LC 
-#if defined(__MK20DX256__) || defined(__MKL26Z64__)
+// Teensy 3.0 || Teensy 3.1/3.2 || Teensy 3.5 || Teensy 3.6 || Teensy LC 
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || \
+	defined(__MK66FX1M0__) || defined(__MKL26Z64__)
 
 #include "Arduino.h"
 #include "UBLOX.h"
@@ -36,22 +37,49 @@ UBLOX::UBLOX(uint8_t bus){
 /* starts the serial communication */
 void UBLOX::begin(int baud){
 
-  // initialize parsing state
-  _fpos = 0;
+  	// initialize parsing state
+  	_fpos = 0;
 
-  // select the serial port
-  if(_bus == 3){
-    _port = &Serial3;
-  }
-  else if(_bus == 2){
-    _port = &Serial2;
-  }
-  else{
-    _port = &Serial1;
-  }
+	// select the serial port
+	#if defined(__MK20DX128__) || defined(__MK20DX256__) ||  defined(__MKL26Z64__) // Teensy 3.0 || Teensy 3.1/3.2 || Teensy LC
 
-  // begin the serial port for uBlox
-  _port->begin(baud);
+		if(_bus == 3){
+			_port = &Serial3;
+		}
+		else if(_bus == 2){
+			_port = &Serial2;
+		}
+		else{
+			_port = &Serial1;
+		}
+
+	#endif
+
+	#if defined(__MK64FX512__) || defined(__MK66FX1M0__) // Teensy 3.5 || Teensy 3.6
+
+		if(_bus == 6){
+			_port = &Serial6;
+		}
+		else if(_bus == 5){
+			_port = &Serial5;
+		}
+		else if(_bus == 4){
+			_port = &Serial4;
+		}
+		else if(_bus == 3){
+			_port = &Serial3;
+		}
+		else if(_bus == 2){
+			_port = &Serial2;
+		}
+		else{
+			_port = &Serial1;
+		}
+
+	#endif
+
+  	// begin the serial port for uBlox
+  	_port->begin(baud);
 }
 
 /* read the uBlox data */

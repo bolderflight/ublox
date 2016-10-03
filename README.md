@@ -1,5 +1,5 @@
 # UBLOX
-Library for communicating with [uBlox](https://www.u-blox.com) GPS receivers using Teensy devices.
+Library for communicating with [uBlox](https://www.u-blox.com) GPS receivers using Teensy 3.x and Teensy LC devices.
 
 # Description
 uBlox produces standard and high precision GPS receivers with options for RTK, PPP, and multi-constellation GNSS. These receivers feature high sensitivity, minimal acquisition times, and small form factors.
