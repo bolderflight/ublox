@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 // a uBlox object, which is on Teensy hardware
 // serial port 3
-UBLOX gps(3);
+UBLOX gps(1);
 
 // the uBlox data structure, UBX-NAV-PVT
 gpsData uBloxData;

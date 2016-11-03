@@ -2,7 +2,7 @@
 UBLOX.cpp
 Brian R Taylor
 brian.taylor@bolderflight.com
-2016-10-03
+2016-11-03
 
 Copyright (c) 2016 Bolder Flight Systems
 
@@ -87,6 +87,7 @@ bool UBLOX::read(gpsData *gpsData_ptr){
 
     const double mm2m = 1.0e-3;
     const double en7 = 1.0e-7;
+    const double en5 = 1.0e-5;
 
 	union{
 		unsigned long val;
@@ -284,7 +285,7 @@ bool UBLOX::read(gpsData *gpsData_ptr){
     	heading.b[1] = _gpsPayload[69];
     	heading.b[2] = _gpsPayload[70];
     	heading.b[3] = _gpsPayload[71];
-    	gpsData_ptr->heading = heading.val;
+    	gpsData_ptr->heading = heading.val * en5;
 
     	sAcc.b[0] = _gpsPayload[72];
     	sAcc.b[1] = _gpsPayload[73];
@@ -296,17 +297,17 @@ bool UBLOX::read(gpsData *gpsData_ptr){
     	headingAcc.b[1] = _gpsPayload[77];
     	headingAcc.b[2] = _gpsPayload[78];
     	headingAcc.b[3] = _gpsPayload[79];
-    	gpsData_ptr->headingAcc = headingAcc.val;
+    	gpsData_ptr->headingAcc = headingAcc.val * en5;
 
     	pDOP.b[0] = _gpsPayload[80];
     	pDOP.b[1] = _gpsPayload[81];
-    	gpsData_ptr->pDOP = pDOP.val;
+    	gpsData_ptr->pDOP = pDOP.val * 0.01L;
 
     	headVeh.b[0] = _gpsPayload[88];
     	headVeh.b[1] = _gpsPayload[89];
     	headVeh.b[2] = _gpsPayload[90];
     	headVeh.b[3] = _gpsPayload[91];
-    	gpsData_ptr->headVeh = headVeh.val;
+    	gpsData_ptr->headVeh = headVeh.val * en5;
 
     // return true on receiving a full packet
     return true;

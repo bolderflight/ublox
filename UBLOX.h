@@ -2,7 +2,7 @@
 UBLOX.h
 Brian R Taylor
 brian.taylor@bolderflight.com
-2016-09-22
+2016-11-03
 
 Copyright (c) 2016 Bolder Flight Systems
 
@@ -52,11 +52,11 @@ struct gpsData {
   double          velE;			  ///< [m/s], NED east velocity
   double          velD;			  ///< [m/s], NED down velocity
   double          gSpeed;		  ///< [m/s], Ground Speed (2-D)
-  long            heading;		  ///< [deg], Heading of motion (2-D)
+  double          heading;		  ///< [deg], Heading of motion (2-D)
   double          sAcc;			  ///< [m/s], Speed accuracy estimate
-  unsigned long   headingAcc;	  ///< [deg], Heading accuracy estimate (both motion and vehicle)
-  unsigned short  pDOP;			  ///< [ND], Position DOP
-  long			  headVeh;		  ///< [deg], Heading of vehicle (2-D)
+  double          headingAcc;	  ///< [deg], Heading accuracy estimate (both motion and vehicle)
+  double          pDOP;			  ///< [ND], Position DOP
+  double		  headVeh;		  ///< [deg], Heading of vehicle (2-D)
 };
 
 class UBLOX{
