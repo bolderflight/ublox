@@ -61,7 +61,9 @@ struct gpsData {
 
 class UBLOX{
   public:
+    UBLOX();
     UBLOX(uint8_t bus);
+    void configure(uint8_t bus);
     void begin(int baud);
     bool read(gpsData *gpsData_ptr);
   private:

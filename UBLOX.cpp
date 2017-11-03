@@ -29,9 +29,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 #include "Arduino.h"
 #include "UBLOX.h"
 
+/* default constructor */
+UBLOX::UBLOX(){}
+
 /* uBlox object, input the serial bus */
 UBLOX::UBLOX(uint8_t bus){
   _bus = bus; // serial bus
+}
+
+void UBLOX::configure(uint8_t bus) {
+    _bus = bus; // serial bus
 }
 
 /* starts the serial communication */
