@@ -2,7 +2,6 @@
 UBLOX.cpp
 Brian R Taylor
 brian.taylor@bolderflight.com
-2016-11-03
 
 Copyright (c) 2016 Bolder Flight Systems
 
@@ -22,368 +21,411 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// Teensy 3.0 || Teensy 3.1/3.2 || Teensy 3.5 || Teensy 3.6 || Teensy LC 
-#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || \
-	defined(__MK66FX1M0__) || defined(__MKL26Z64__)
-
 #include "Arduino.h"
 #include "UBLOX.h"
 
-/* default constructor */
-UBLOX::UBLOX(){}
-
-/* uBlox object, input the serial bus */
-UBLOX::UBLOX(uint8_t bus){
-  _bus = bus; // serial bus
-}
-
-void UBLOX::configure(uint8_t bus) {
-    _bus = bus; // serial bus
+/* uBlox object, input the serial bus and baud rate */
+UBLOX::UBLOX(HardwareSerial& bus,uint32_t baud)
+{
+  _bus = &bus;
+	_baud = baud;
 }
 
 /* starts the serial communication */
-void UBLOX::begin(int baud){
-
-  	// initialize parsing state
-  	_fpos = 0;
-
-	// select the serial port
-	#if defined(__MK20DX128__) || defined(__MK20DX256__) ||  defined(__MKL26Z64__) // Teensy 3.0 || Teensy 3.1/3.2 || Teensy LC
-
-		if(_bus == 3){
-			_port = &Serial3;
-		}
-		else if(_bus == 2){
-			_port = &Serial2;
-		}
-		else{
-			_port = &Serial1;
-		}
-
-	#endif
-
-	#if defined(__MK64FX512__) || defined(__MK66FX1M0__) // Teensy 3.5 || Teensy 3.6
-
-		if(_bus == 6){
-			_port = &Serial6;
-		}
-		else if(_bus == 5){
-			_port = &Serial5;
-		}
-		else if(_bus == 4){
-			_port = &Serial4;
-		}
-		else if(_bus == 3){
-			_port = &Serial3;
-		}
-		else if(_bus == 2){
-			_port = &Serial2;
-		}
-		else{
-			_port = &Serial1;
-		}
-
-	#endif
-
-  	// begin the serial port for uBlox
-  	_port->begin(baud);
+void UBLOX::begin()
+{
+	// initialize parsing state
+	_parserState = 0;
+	// begin the serial port for uBlox
+	_bus->begin(_baud);
 }
 
-/* read the uBlox data */
-bool UBLOX::read(gpsData *gpsData_ptr){
+/* reads packets from the uBlox receiver */
+bool UBLOX::readSensor()
+{
+	if (_parse(_ubxNavPvt_msgClass,_ubxNavPvt_msgId,_ubxNavPvt_msgLen)) {
+		return true;
+	} else {
+		return false;
+	}
+}
 
-    const double mm2m = 1.0e-3;
-    const double en7 = 1.0e-7;
-    const double en5 = 1.0e-5;
+/* GPS time of week of nav solution, ms */
+uint32_t UBLOX::getTow_ms()
+{
+	return _validPacket.iTOW;
+}
 
-	union{
-		unsigned long val;
-		uint8_t b[4];
-	}iTOW;
+/* UTC year */
+uint16_t UBLOX::getYear()
+{
+	return _validPacket.year;
+}
 
-	union{
-		unsigned short val;
-		uint8_t b[2];
-	}utcYear;
+/* UTC month */
+uint8_t UBLOX::getMonth()
+{
+	return _validPacket.month;
+}
 
-	union{
-		unsigned long val;
-		uint8_t b[4];
-	}tAcc;
+/* UTC day */
+uint8_t UBLOX::getDay()
+{
+	return _validPacket.day;
+}
 
-	union{
-		long val;
-		uint8_t b[4];
-	}utcNano;
+/* UTC hour */
+uint8_t UBLOX::getHour()
+{
+	return _validPacket.hour;
+}
 
-	union{
-		long val;
-		uint8_t b[4];
-	}lon;
+/* UTC minute */
+uint8_t UBLOX::getMin()
+{
+	return _validPacket.min;
+}
 
-	union{
-		long val;
-		uint8_t b[4];
-	}lat;
+/* UTC second */
+uint8_t UBLOX::getSec()
+{
+	return _validPacket.sec;
+}
 
-	union{
-		long val;
-		uint8_t b[4];
-	}height;
+/* UTC fraction of a second, ns */
+int32_t UBLOX::getNanoSec()
+{
+	return _validPacket.nano;
+}
 
-	union{
-		long val;
-		uint8_t b[4];
-	}hMSL;
+/* number of satellites used in nav solution */
+uint8_t UBLOX::getNumSatellites()
+{
+	return _validPacket.numSV;
+}
 
-	union{
-		unsigned long val;
-		uint8_t b[4];
-	}hAcc;
+/* longitude, deg */
+double UBLOX::getLongitude_deg()
+{
+	return (double)_validPacket.lon * 1e-7;
+}
 
-	union{
-		unsigned long val;
-		uint8_t b[4];
-	}vAcc;
+/* latitude, deg */
+double UBLOX::getLatitude_deg()
+{
+	return (double)_validPacket.lat * 1e-7;
+}
 
-	union{
-		long val;
-		uint8_t b[4];
-	}velN;
+/* height above the ellipsoid, ft */
+double UBLOX::getEllipsoidHeight_ft()
+{
+	return (double)_validPacket.height * 1e-3 * _m2ft;
+}
 
-	union{
-		long val;
-		uint8_t b[4];
-	}velE;
+/* height above mean sea level, ft */
+double UBLOX::getMSLHeight_ft()
+{
+	return (double)_validPacket.hMSL * 1e-3 * _m2ft;
+}
 
-	union{
-		long val;
-		uint8_t b[4];
-	}velD;
+/* horizontal accuracy estimate, ft */
+double UBLOX::getHorizontalAccuracy_ft()
+{
+	return (double)_validPacket.hAcc * 1e-3 * _m2ft;
+}
 
-	union{
-		long val;
-		uint8_t b[4];
-	}gSpeed;
+/* vertical accuracy estimate, ft */
+double UBLOX::getVerticalAccuracy_ft()
+{
+	return (double)_validPacket.vAcc * 1e-3 * _m2ft;
+}
 
-	union{
-		long val;
-		uint8_t b[4];
-	}heading;
+/* NED north velocity, ft/s */
+double UBLOX::getNorthVelocity_fps()
+{
+	return (double)_validPacket.velN * 1e-3 * _m2ft;
+}
 
-	union{
-		unsigned long val;
-		uint8_t b[4];
-	}sAcc;
+/* NED east velocity, ft/s */
+double UBLOX::getEastVelocity_fps()
+{
+	return (double)_validPacket.velE * 1e-3 * _m2ft;
+}
 
-	union{
-		unsigned long val;
-		uint8_t b[4];
-	}headingAcc;
+/* NED down velocity ft/s */
+double UBLOX::getDownVelocity_fps()
+{
+	return (double)_validPacket.velD * 1e-3 * _m2ft;
+}
 
-	union{
-		unsigned short val;
-		uint8_t b[2];
-	}pDOP;
+/* 2D ground speed, ft/s */
+double UBLOX::getGroundSpeed_fps()
+{
+	return (double)_validPacket.gSpeed * 1e-3 * _m2ft;
+}
 
-	union{
-		unsigned long val;
-		uint8_t b[4];
-	}headVeh;
+/* speed accuracy estimate, ft/s */
+double UBLOX::getSpeedAccuracy_fps()
+{
+	return (double)_validPacket.sAcc * 1e-3 * _m2ft;
+}
 
-  // parse the uBlox packet
-  if(parse()){
+/* 2D heading of motion, deg */
+double UBLOX::getMotionHeading_deg()
+{
+	return (double)_validPacket.headMot * 1e-5;
+}
 
-    	iTOW.b[0] = _gpsPayload[4];
-    	iTOW.b[1] = _gpsPayload[5];
-    	iTOW.b[2] = _gpsPayload[6];
-    	iTOW.b[3] = _gpsPayload[7];
-    	gpsData_ptr->iTOW = iTOW.val;
+/* 2D vehicle heading, deg */
+double UBLOX::getVehicleHeading_deg()
+{
+	return (double)_validPacket.headVeh * 1e-5;
+}
 
-    	utcYear.b[0] = _gpsPayload[8];
-    	utcYear.b[1] = _gpsPayload[9];
-    	gpsData_ptr->utcYear = utcYear.val;
+/* heading accuracy estimate, deg */
+double UBLOX::getHeadingAccuracy_deg()
+{
+	return (double)_validPacket.headAcc * 1e-5;
+}
 
-    	gpsData_ptr->utcMonth = _gpsPayload[10];
-    	gpsData_ptr->utcDay = _gpsPayload[11];
-    	gpsData_ptr->utcHour = _gpsPayload[12];
-    	gpsData_ptr->utcMin = _gpsPayload[13];
-    	gpsData_ptr->utcSec = _gpsPayload[14];
-    	gpsData_ptr->valid = _gpsPayload[15];
+/* magnetic declination, deg */
+float UBLOX::getMagneticDeclination_deg()
+{
+	return (float)_validPacket.magDec * 1e-2;
+}
 
-    	tAcc.b[0] = _gpsPayload[16];
-    	tAcc.b[1] = _gpsPayload[17];
-    	tAcc.b[2] = _gpsPayload[18];
-    	tAcc.b[3] = _gpsPayload[19];
-    	gpsData_ptr->tAcc = tAcc.val;
+/* magnetic declination accuracy estimate, deg */
+float UBLOX::getMagneticDeclinationAccuracy_deg()
+{
+	return (float)_validPacket.magAcc * 1e-2;
+}
 
-    	utcNano.b[0] = _gpsPayload[20];
-    	utcNano.b[1] = _gpsPayload[21];
-    	utcNano.b[2] = _gpsPayload[22];
-    	utcNano.b[3] = _gpsPayload[23];
-    	gpsData_ptr->utcNano = utcNano.val;
+/* longitude, rad */
+double UBLOX::getLongitude_rad()
+{
+	return (double)_validPacket.lon * 1e-7 * _deg2rad;
+}
 
-    	gpsData_ptr->fixType = _gpsPayload[24];
-    	gpsData_ptr->flags = _gpsPayload[25];
-    	gpsData_ptr->flags2 = _gpsPayload[26];
-    	gpsData_ptr->numSV = _gpsPayload[27];
+/* latitude, rad */
+double UBLOX::getLatitude_rad()
+{
+	return (double)_validPacket.lat * 1e-7 * _deg2rad;
+}
 
-    	lon.b[0] = _gpsPayload[28];
-    	lon.b[1] = _gpsPayload[29];
-    	lon.b[2] = _gpsPayload[30];
-    	lon.b[3] = _gpsPayload[31];
-    	gpsData_ptr->lon = lon.val * en7;
+/* height above the ellipsoid, m */
+double UBLOX::getEllipsoidHeight_m()
+{
+	return (double)_validPacket.height * 1e-3;
+}
 
-    	lat.b[0] = _gpsPayload[32];
-    	lat.b[1] = _gpsPayload[33];
-    	lat.b[2] = _gpsPayload[34];
-    	lat.b[3] = _gpsPayload[35];
-    	gpsData_ptr->lat = lat.val * en7;
+/* height above mean sea level, m */
+double UBLOX::getMSLHeight_m()
+{
+	return (double)_validPacket.hMSL * 1e-3;
+}
 
-    	height.b[0] = _gpsPayload[36];
-    	height.b[1] = _gpsPayload[37];
-    	height.b[2] = _gpsPayload[38];
-    	height.b[3] = _gpsPayload[39];
-    	gpsData_ptr->height = height.val * mm2m;
+/* horizontal accuracy estimate, m */
+double UBLOX::getHorizontalAccuracy_m()
+{
+	return (double)_validPacket.hAcc * 1e-3;
+}
 
-    	hMSL.b[0] = _gpsPayload[40];
-    	hMSL.b[1] = _gpsPayload[41];
-    	hMSL.b[2] = _gpsPayload[42];
-    	hMSL.b[3] = _gpsPayload[43];
-    	gpsData_ptr->hMSL = hMSL.val * mm2m;
+/* vertical accuracy estimate, m */
+double UBLOX::getVerticalAccuracy_m()
+{
+	return (double)_validPacket.vAcc * 1e-3;
+}
 
-    	hAcc.b[0] = _gpsPayload[44];
-    	hAcc.b[1] = _gpsPayload[45];
-    	hAcc.b[2] = _gpsPayload[46];
-    	hAcc.b[3] = _gpsPayload[47];
-    	gpsData_ptr->hAcc = hAcc.val * mm2m;
+/* NED north velocity, m/s */
+double UBLOX::getNorthVelocity_ms()
+{
+	return (double)_validPacket.velN * 1e-3;
+}
 
-    	vAcc.b[0] = _gpsPayload[48];
-    	vAcc.b[1] = _gpsPayload[49];
-    	vAcc.b[2] = _gpsPayload[50];
-    	vAcc.b[3] = _gpsPayload[51];
-    	gpsData_ptr->vAcc = vAcc.val * mm2m;
+/* NED east velocity, m/s */
+double UBLOX::getEastVelocity_ms()
+{
+	return (double)_validPacket.velE * 1e-3;
+}
 
-    	velN.b[0] = _gpsPayload[52];
-    	velN.b[1] = _gpsPayload[53];
-    	velN.b[2] = _gpsPayload[54];
-    	velN.b[3] = _gpsPayload[55];
-    	gpsData_ptr->velN = velN.val * mm2m;
+/* NED down velocity, m/s */
+double UBLOX::getDownVelocity_ms()
+{
+	return (double)_validPacket.velD * 1e-3;
+}
 
-    	velE.b[0] = _gpsPayload[56];
-    	velE.b[1] = _gpsPayload[57];
-    	velE.b[2] = _gpsPayload[58];
-    	velE.b[3] = _gpsPayload[59];
-    	gpsData_ptr->velE = velE.val * mm2m;
+/* 2D ground speed, m/s */
+double UBLOX::getGroundSpeed_ms()
+{
+	return (double)_validPacket.gSpeed * 1e-3;
+}
 
-    	velD.b[0] = _gpsPayload[60];
-    	velD.b[1] = _gpsPayload[61];
-    	velD.b[2] = _gpsPayload[62];
-    	velD.b[3] = _gpsPayload[63];
-    	gpsData_ptr->velD = velD.val * mm2m;
+/* speed accuracy estimate, m/s */
+double UBLOX::getSpeedAccuracy_ms()
+{
+	return (double)_validPacket.sAcc * 1e-3;
+}
 
-    	gSpeed.b[0] = _gpsPayload[64];
-    	gSpeed.b[1] = _gpsPayload[65];
-    	gSpeed.b[2] = _gpsPayload[66];
-    	gSpeed.b[3] = _gpsPayload[67];
-    	gpsData_ptr->gSpeed = gSpeed.val * mm2m;
+/* 2D heading of motion, rad */
+double UBLOX::getMotionHeading_rad()
+{
+	return (double)_validPacket.headMot * 1e-5 * _deg2rad;
+}
 
-    	heading.b[0] = _gpsPayload[68];
-    	heading.b[1] = _gpsPayload[69];
-    	heading.b[2] = _gpsPayload[70];
-    	heading.b[3] = _gpsPayload[71];
-    	gpsData_ptr->heading = heading.val * en5;
+/* 2D vehicle heading, rad */
+double UBLOX::getVehicleHeading_rad()
+{
+	return (double)_validPacket.headVeh * 1e-5 * _deg2rad;
+}
 
-    	sAcc.b[0] = _gpsPayload[72];
-    	sAcc.b[1] = _gpsPayload[73];
-    	sAcc.b[2] = _gpsPayload[74];
-    	sAcc.b[3] = _gpsPayload[75];
-    	gpsData_ptr->sAcc = sAcc.val  * mm2m;
+/* heading accuracy estimate, rad */
+double UBLOX::getHeadingAccuracy_rad()
+{
+	return (double)_validPacket.headAcc * 1e-5 * _deg2rad;
+}
 
-    	headingAcc.b[0] = _gpsPayload[76];
-    	headingAcc.b[1] = _gpsPayload[77];
-    	headingAcc.b[2] = _gpsPayload[78];
-    	headingAcc.b[3] = _gpsPayload[79];
-    	gpsData_ptr->headingAcc = headingAcc.val * en5;
+/* magnetic declination, rad */
+float UBLOX::getMagneticDeclination_rad()
+{
+	return (float)_validPacket.magDec * 1e-2 * _deg2rad;
+}
 
-    	pDOP.b[0] = _gpsPayload[80];
-    	pDOP.b[1] = _gpsPayload[81];
-    	gpsData_ptr->pDOP = pDOP.val * 0.01L;
+/* magnetic declination accuracy estimate, rad */
+float UBLOX::getMagneticDeclinationAccuracy_rad()
+{
+	return (float)_validPacket.magAcc * 1e-2 * _deg2rad;
+}
 
-    	headVeh.b[0] = _gpsPayload[88];
-    	headVeh.b[1] = _gpsPayload[89];
-    	headVeh.b[2] = _gpsPayload[90];
-    	headVeh.b[3] = _gpsPayload[91];
-    	gpsData_ptr->headVeh = headVeh.val * en5;
+/* position dilution of precision */
+float UBLOX::getpDOP()
+{
+	return (float)_validPacket.pDOP * 1e-2;
+}
 
-    // return true on receiving a full packet
-    return true;
-  }
-  else{
+/* fix type */
+enum UBLOX::FixType UBLOX::getFixType()
+{
+	return (FixType)_validPacket.fixType;
+}
 
-    // return false if a full packet is not received
-    return false;
-  }
+/* power save mode */
+enum UBLOX::PowerSaveMode UBLOX::getPowerSaveMode()
+{
+	return (PowerSaveMode)((_validPacket.flags >> 2) & 0x07);
+}
 
+/* carrier phase status */
+enum UBLOX::CarrierPhaseStatus UBLOX::getCarrierPhaseStatus()
+{
+	return (CarrierPhaseStatus)((_validPacket.flags >> 6) & 0x03);
+}
+
+/* valid fix, within DOP and accuracy masks */
+bool UBLOX::isGnssFixOk()
+{
+	return _validPacket.flags & 0x01;
+}
+
+/* differential corrections were applied */
+bool UBLOX::isDiffCorrApplied()
+{
+	return _validPacket.flags & 0x02;
+}
+
+/* heading of vehicle is valid */
+bool UBLOX::isHeadingValid()
+{
+	return _validPacket.flags & 0x20;
+}
+
+/* UTC date validity could be confirmed */
+bool UBLOX::isConfirmedDate()
+{
+	return _validPacket.flags & 0x40;
+}
+
+/* UTC time validity could be confirmed */
+bool UBLOX::isConfirmedTime()
+{
+	return _validPacket.flags & 0x80;
+}
+
+/* info about UTC date and time validity confirmation is available */
+bool UBLOX::isTimeDateConfirmationAvail()
+{
+	return _validPacket.flags2 & 0x20;
+}
+
+/* valid UTC date */
+bool UBLOX::isValidDate()
+{
+	return _validPacket.valid & 0x01;
+}
+
+/* valid UTC time */
+bool UBLOX::isValidTime()
+{
+	return _validPacket.valid & 0x02;
+}
+
+/* UTC time of day has been fully resolved, no seconds uncertainty */
+bool UBLOX::isTimeFullyResolved()
+{
+	return _validPacket.valid & 0x04;
+}
+
+/* valid magnetic declination estimate */
+bool UBLOX::isMagneticDeclinationValid()
+{
+	return _validPacket.valid & 0x08;
 }
 
 /* parse the uBlox data */
-bool UBLOX::parse(){
-    // uBlox UBX header definition
-    const unsigned char UBX_HEADER[] = { 0xB5, 0x62 };
-
-    // checksum calculation
-    static unsigned char checksum[2];
-
-    // read a byte from the serial port
-    while ( _port->available() ) {
-		uint8_t c = _port->read();
-
-        // identify the packet header
-        if ( _fpos < 2 ) {
-            if ( c == UBX_HEADER[_fpos] ) {
-                _fpos++;
-            }
-            else
-                _fpos = 0;
-        }
-        else {
-
-            // grab the payload
-            if ( (_fpos-2) < _payloadSize )
-                ((unsigned char*)_gpsPayload)[_fpos-2] = c;
-                _fpos++;
-
-            // compute checksum
-            if ( (_fpos-2) == _payloadSize ) {
-                calcChecksum(checksum,_gpsPayload,_payloadSize);
-            }
-            else if ( (_fpos-2) == (_payloadSize+1) ) {
-                if ( c != checksum[0] )
-                    _fpos = 0;
-            }
-            else if ( (_fpos-2) == (_payloadSize+2) ) {
-                _fpos = 0;
-                if ( c == checksum[1] ) {
-                    return true;
-                }
-            }
-            else if ( _fpos > (_payloadSize+4) ) {
-                _fpos = 0;
-            }
-        }
-    }
-    return false;
+bool UBLOX::_parse(uint8_t msg_class,uint8_t msg_id,uint16_t msg_length)
+{
+	// read a byte from the serial port
+	while (_bus->available()) {
+		_byte = _bus->read();
+		// identify the packet header
+		if (_parserState < 2) {
+			if (_byte == _ubxHeader[_parserState]) {
+				_parserState++;
+			} else {
+				_parserState = 0;
+			}
+		} else {
+			if ((_parserState - 2) < msg_length) {
+				*((uint8_t *) &_tempPacket + _parserState - 2) = _byte;
+			}
+			_parserState++;
+			// compute checksum
+			if ((_parserState - 2) == msg_length) {
+				_calcChecksum(_checksum,((uint8_t *) &_tempPacket),msg_length);
+			} else if ((_parserState - 2) == (msg_length + 1)) {
+				if (_byte != _checksum[0]) {
+					_parserState = 0;
+				}
+			} else if ((_parserState - 2) == (msg_length + 2)) {
+				_parserState = 0;
+				if (_byte == _checksum[1]) {
+					memcpy(&_validPacket,&_tempPacket,sizeof(_validPacket));
+					return true;
+				}
+			} else if (_parserState > (msg_length + 4) ) {
+				_parserState = 0;
+			}
+		}
+	}
+	return false;
 }
 
 /* uBlox checksum */
-void UBLOX::calcChecksum(unsigned char* CK, unsigned char* payload, uint8_t length){
+void UBLOX::_calcChecksum(uint8_t* CK, uint8_t* payload, uint16_t length)
+{
 	CK[0] = 0;
-    CK[1] = 0;
-    for (uint8_t i = 0; i < length; i++) {
-        CK[0] += payload[i];
-        CK[1] += CK[0];
-    }
+  CK[1] = 0;
+	for (uint8_t i = 0; i < length; i++) {
+		CK[0] += payload[i];
+		CK[1] += CK[0];
+	}
 }
-
-#endif

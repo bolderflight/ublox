@@ -2,7 +2,6 @@
 UBLOX.h
 Brian R Taylor
 brian.taylor@bolderflight.com
-2016-11-03
 
 Copyright (c) 2016 Bolder Flight Systems
 
@@ -27,53 +26,139 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 #include "Arduino.h"				
 
-struct gpsData {
-  unsigned long   iTOW;			  ///< [ms], GPS time of the navigation epoch
-  unsigned short  utcYear;		  ///< [year], Year (UTC)
-  unsigned char   utcMonth;		  ///< [month], Month, range 1..12 (UTC)
-  unsigned char   utcDay;		  ///< [day], Day of month, range 1..31 (UTC)
-  unsigned char   utcHour;		  ///< [hour], Hour of day, range 0..23 (UTC)
-  unsigned char   utcMin;		  ///< [min], Minute of hour, range 0..59 (UTC)
-  unsigned char   utcSec;		  ///< [s], Seconds of minute, range 0..60 (UTC)
-  unsigned char   valid;		  ///< [ND], Validity flags
-  unsigned long   tAcc;			  ///< [ns], Time accuracy estimate (UTC)
-  long            utcNano;		  ///< [ns], Fraction of second, range -1e9 .. 1e9 (UTC)
-  unsigned char   fixType;		  ///< [ND], GNSSfix Type: 0: no fix, 1: dead reckoning only, 2: 2D-fix, 3: 3D-fix, 4: GNSS + dead reckoning combined, 5: time only fix
-  unsigned char   flags;		  ///< [ND], Fix status flags
-  unsigned char   flags2;		  ///< [ND], Additional flags
-  unsigned char   numSV;		  ///< [ND], Number of satellites used in Nav Solution
-  double          lon;			  ///< [deg], Longitude
-  double          lat;			  ///< [deg], Latitude
-  double          height;		  ///< [m], Height above ellipsoid 
-  double          hMSL;			  ///< [m], Height above mean sea level
-  double          hAcc;			  ///< [m], Horizontal accuracy estimate
-  double          vAcc;			  ///< [m], Vertical accuracy estimate
-  double          velN;			  ///< [m/s], NED north velocity
-  double          velE;			  ///< [m/s], NED east velocity
-  double          velD;			  ///< [m/s], NED down velocity
-  double          gSpeed;		  ///< [m/s], Ground Speed (2-D)
-  double          heading;		  ///< [deg], Heading of motion (2-D)
-  double          sAcc;			  ///< [m/s], Speed accuracy estimate
-  double          headingAcc;	  ///< [deg], Heading accuracy estimate (both motion and vehicle)
-  double          pDOP;			  ///< [ND], Position DOP
-  double		  headVeh;		  ///< [deg], Heading of vehicle (2-D)
-};
-
 class UBLOX{
   public:
-    UBLOX();
-    UBLOX(uint8_t bus);
-    void configure(uint8_t bus);
-    void begin(int baud);
-    bool read(gpsData *gpsData_ptr);
+    enum FixType {
+      NO_FIX = 0,
+      DEAD_RECKONING,
+      FIX_2D,
+      FIX_3D,
+      GNSS_AND_DEAD_RECKONING,
+      TIME_ONLY
+    };
+    enum PowerSaveMode {
+      NOT_ACTIVE = 0,
+      ENABLED,
+      ACQUISITION,
+      TRACKING,
+      OPTIMIZED_TRACKING,
+      INACTIVE
+    };
+    enum CarrierPhaseStatus {
+      NO_SOL = 0,
+      FLOAT_SOL,
+      FIXED_SOL
+    };
+    UBLOX(HardwareSerial& bus,uint32_t baud);
+    void begin();
+    bool readSensor();
+    uint32_t getTow_ms();
+    uint16_t getYear();
+    uint8_t getMonth();
+    uint8_t getDay();
+    uint8_t getHour();
+    uint8_t getMin();
+    uint8_t getSec();
+    int32_t getNanoSec();
+    uint8_t getNumSatellites();
+    double getLongitude_deg();
+    double getLatitude_deg();
+    double getEllipsoidHeight_ft();
+    double getMSLHeight_ft();
+    double getHorizontalAccuracy_ft();
+    double getVerticalAccuracy_ft();
+    double getNorthVelocity_fps();
+    double getEastVelocity_fps();
+    double getDownVelocity_fps();
+    double getGroundSpeed_fps();
+    double getSpeedAccuracy_fps();
+    double getMotionHeading_deg();
+    double getVehicleHeading_deg();
+    double getHeadingAccuracy_deg();
+    float getMagneticDeclination_deg();
+    float getMagneticDeclinationAccuracy_deg();
+    double getLongitude_rad();
+    double getLatitude_rad();
+    double getEllipsoidHeight_m();
+    double getMSLHeight_m();
+    double getHorizontalAccuracy_m();
+    double getVerticalAccuracy_m();
+    double getNorthVelocity_ms();
+    double getEastVelocity_ms();
+    double getDownVelocity_ms();
+    double getGroundSpeed_ms();
+    double getSpeedAccuracy_ms();
+    double getMotionHeading_rad();
+    double getVehicleHeading_rad();
+    double getHeadingAccuracy_rad();
+    float getMagneticDeclination_rad();
+    float getMagneticDeclinationAccuracy_rad();
+    float getpDOP();
+    enum FixType getFixType();
+    enum PowerSaveMode getPowerSaveMode();
+    enum CarrierPhaseStatus getCarrierPhaseStatus();
+    bool isGnssFixOk();
+    bool isDiffCorrApplied();
+    bool isHeadingValid();
+    bool isConfirmedDate();
+    bool isConfirmedTime();
+    bool isTimeDateConfirmationAvail();
+    bool isValidDate();
+    bool isValidTime();
+    bool isTimeFullyResolved();
+    bool isMagneticDeclinationValid();
   private:
-  	uint8_t _bus;
-  	uint8_t _fpos;
-  	static const uint8_t _payloadSize = 96;
-  	uint8_t _gpsPayload[_payloadSize];
-  	HardwareSerial* _port;
-	bool parse();
-	void calcChecksum(unsigned char* CK, unsigned char* payload, uint8_t length);
+    HardwareSerial* _bus;
+    uint32_t _baud;
+  	uint8_t _parserState;
+    const uint8_t _ubxHeader[2] = {0xB5, 0x62};
+    const uint8_t _ubxNavPvt_msgClass = 0x01;
+    const uint8_t _ubxNavPvt_msgId = 0x07;
+    const uint16_t _ubxNavPvt_msgLen = 96;
+    uint8_t _checksum[2];
+    uint8_t _byte;
+    struct _UBX_NAV_PVT {
+      uint8_t msg_class;
+      uint8_t msg_id;
+      uint16_t msg_length;
+      uint32_t iTOW;
+      uint16_t year;
+      uint8_t month;
+      uint8_t day;
+      uint8_t hour;
+      uint8_t min;
+      uint8_t sec;
+      uint8_t valid;
+      uint32_t tAcc;
+      int32_t nano;
+      uint8_t fixType;
+      uint8_t flags;
+      uint8_t flags2;
+      uint8_t numSV;
+      int32_t lon;
+      int32_t lat;
+      int32_t height;
+      int32_t hMSL;
+      uint32_t hAcc;
+      uint32_t vAcc;
+      int32_t velN;
+      int32_t velE;
+      int32_t velD;
+      int32_t gSpeed;
+      int32_t headMot;
+      uint32_t sAcc;
+      uint32_t headAcc;
+      uint16_t pDOP;
+      uint8_t reserved[6];
+      int32_t headVeh;
+      int16_t magDec;
+      uint16_t magAcc;
+    };
+    struct _UBX_NAV_PVT _tempPacket,_validPacket;
+    const float _m2ft = 3.28084;
+    const float _deg2rad = M_PI/180.0;
+	  bool _parse(uint8_t msg_class,uint8_t msg_id,uint16_t msg_length);
+	  void _calcChecksum(uint8_t* CK, uint8_t* payload, uint16_t length);
 };
 
 #endif
