@@ -224,7 +224,9 @@ The most recent valid packet is stored in the UBLOX object. Data fields can be r
 &ast; The various agencies try to keep the GNSS and UTC references synchronized at the tick event of the second. Short term perturbations in clocks may result in GPS second event being ahead of or behind the UTC second event by up to a microsecond. Hence, fraction of a second may be positive or negative.
 
 The following enum describes the fix type:
+
 | enum UBLOX::FixType | Description |
+| -- | -- |
 | NO_FIX | No Fix |
 | DEAD_RECKONING | Dead reckoning only |
 | FIX_2D | 2D-fix |
@@ -233,7 +235,9 @@ The following enum describes the fix type:
 | TIME_ONLY | time only fix |
 
 The following enum describes the power save modes:
+
 | enum UBLOX::PowerSaveMode | Description |
+| -- | -- |
 | NOT_ACTIVE | PSM is not active |
 | ENABLED | Enabled (an intermediate state before Acquisition state) |
 | ACQUISITION | Acquisition |
@@ -242,7 +246,9 @@ The following enum describes the power save modes:
 | INACTIVE | Inactive |
 
 The following enum describes the carrier phase status:
+
 | enum UBLOX::CarrierPhaseStatus | Description |
+| -- | -- |
 | NO_SOL | No carrier phase range solution |
 | FLOAT_SOL | Float solution (no fixed integer carrier phase measurements used to calculate the solution) |
 | FIXED_SOL | Fixed solution (one or more fixed integer carrier phase range measurements used to calculate the solution) |
