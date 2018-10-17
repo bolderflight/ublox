@@ -51,7 +51,7 @@ class UBLOX{
     };
     UBLOX(HardwareSerial& bus,uint32_t baud);
     void begin();
-    void ClearFix();
+    void clearFix();
     bool readSensor();	
     uint32_t getTow_ms();
     uint16_t getYear();
