@@ -1,6 +1,8 @@
 # UBLOX
 Arduino library for communicating with [uBlox](https://www.u-blox.com) GPS receivers.
 
+***Developing with the [Teensy 3.2](https://www.pjrc.com/store/teensy32.html) or [LC](https://www.pjrc.com/store/teensylc.html)? Consider buying our [Teensy GNSS Backpack](http://bolderflight.com/products/teensy/gnss/), which integrates the uBlox SAM-M8Q GNSS module in a stackable add-on module with UART, I2C, and PPS interfaces and thoughtfully designed to integrate perfectly with the Teensy. Check out all of our wonderfully small and powerful [Teensy Backpacks](http://bolderflight.com/products/teensy/)***
+
 # Description
 uBlox produces standard and high precision GPS receivers with options for RTK, PPP, and multi-constellation GNSS. These receivers feature high sensitivity, minimal acquisition times, and small form factors.
 
