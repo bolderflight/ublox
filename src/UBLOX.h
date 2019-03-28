@@ -51,8 +51,8 @@ class UBLOX{
     };
     UBLOX(HardwareSerial& bus,uint32_t baud);
     void begin();
-    void clearFix();
-    bool readSensor();	
+    bool readSensor();
+    unsigned long age();
     uint32_t getTow_ms();
     uint16_t getYear();
     uint8_t getMonth();
@@ -155,12 +155,13 @@ class UBLOX{
       int16_t magDec;
       uint16_t magAcc;
     };
+    unsigned long validPacketAge; //Updates to millis on every valid update of _validPacket
     const double _PI = 3.14159265358979323846;
     struct _UBX_NAV_PVT _tempPacket,_validPacket;
     const float _m2ft = 3.28084;
     const float _deg2rad = _PI/180.0;
-	  bool _parse(uint8_t msg_class,uint8_t msg_id,uint16_t msg_length);
-	  void _calcChecksum(uint8_t* CK, uint8_t* payload, uint16_t length);
+	bool _parse(uint8_t msg_class,uint8_t msg_id,uint16_t msg_length);
+	void _calcChecksum(uint8_t* CK, uint8_t* payload, uint16_t length);
 };
 
 #endif
