@@ -40,14 +40,29 @@ void UBLOX::begin()
 	_bus->begin(_baud);
 }
 
+/* clear Status Flags */
+void UBLOX::clearStatus()
+{
+	// initialize parsing state
+	_validPacket.valid = 0;
+	_validPacket.flags = 0;
+}
+
 /* reads packets from the uBlox receiver */
 bool UBLOX::readSensor()
 {
 	if (_parse(_ubxNavPvt_msgClass,_ubxNavPvt_msgId,_ubxNavPvt_msgLen)) {
+		validPacketAge = millis();
 		return true;
 	} else {
 		return false;
 	}
+}
+
+/* returns timestamp of last valid packet*/
+unsigned long UBLOX::age()
+{
+	return validPacketAge;
 }
 
 /* GPS time of week of nav solution, ms */
