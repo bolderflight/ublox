@@ -51,10 +51,11 @@ bool UBLOX::readSensor()
 	}
 }
 
-/* returns timestamp of last valid packet*/
+/* returns age of last valid packet*/
 unsigned long UBLOX::age()
 {
-	return validPacketAge;
+	unsigned long validPacketAgeDifference = millis() - validPacketAge;
+	return validPacketAgeDifference;
 }
 
 /* GPS time of week of nav solution, ms */
