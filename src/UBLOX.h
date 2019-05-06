@@ -51,8 +51,10 @@ class UBLOX{
     };
     UBLOX(HardwareSerial& bus,uint32_t baud);
     void begin();
+	void end();
     bool readSensor();
     unsigned long age();
+	void setAge(unsigned long newAge);
     uint32_t getTow_ms();
     uint16_t getYear();
     uint8_t getMonth();
@@ -63,7 +65,9 @@ class UBLOX{
     int32_t getNanoSec();
     uint8_t getNumSatellites();
     double getLongitude_deg();
+	int32_t getLongitude_raw();
     double getLatitude_deg();
+	int32_t getLatitude_raw();
     double getEllipsoidHeight_ft();
     double getMSLHeight_ft();
     double getHorizontalAccuracy_ft();

@@ -36,8 +36,20 @@ void UBLOX::begin()
 {
 	// initialize parsing state
 	_parserState = 0;
+	//clear _validPacket
+	_validPacket = {};
 	// begin the serial port for uBlox
 	_bus->begin(_baud);
+}
+
+void UBLOX::end()
+{
+	// clear parsing state
+	_parserState = 0;
+	//wait for buffers to empty
+	_bus->flush();
+	// end the serial port for uBlox
+	_bus->end();
 }
 
 /* reads packets from the uBlox receiver */
@@ -118,10 +130,22 @@ double UBLOX::getLongitude_deg()
 	return (double)_validPacket.lon * 1e-7;
 }
 
+/* longitude, raw from ublox */
+int32_t UBLOX::getLongitude_raw()
+{
+	return _validPacket.lon;
+}
+
 /* latitude, deg */
 double UBLOX::getLatitude_deg()
 {
 	return (double)_validPacket.lat * 1e-7;
+}
+
+/* latitude, raw from ublox */
+int32_t UBLOX::getLatitude_raw()
+{
+	return _validPacket.lat;
 }
 
 /* height above the ellipsoid, ft */
