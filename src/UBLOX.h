@@ -53,8 +53,6 @@ class UBLOX{
     void begin();
     void end();
     bool readSensor();
-    unsigned long age();
-    void setAge(unsigned long newAge);
     uint32_t getTow_ms();
     uint16_t getYear();
     uint8_t getMonth();
@@ -159,7 +157,6 @@ class UBLOX{
       int16_t magDec;
       uint16_t magAcc;
     };
-    unsigned long validPacketAge; //Updates to millis on every valid update of _validPacket
     const double _PI = 3.14159265358979323846;
     struct _UBX_NAV_PVT _tempPacket,_validPacket;
     const float _m2ft = 3.28084;

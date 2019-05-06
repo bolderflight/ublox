@@ -56,18 +56,10 @@ void UBLOX::end()
 bool UBLOX::readSensor()
 {
 	if (_parse(_ubxNavPvt_msgClass,_ubxNavPvt_msgId,_ubxNavPvt_msgLen)) {
-		validPacketAge = millis();
 		return true;
 	} else {
 		return false;
 	}
-}
-
-/* returns age of last valid packet*/
-unsigned long UBLOX::age()
-{
-	unsigned long validPacketAgeDifference = millis() - validPacketAge;
-	return validPacketAgeDifference;
 }
 
 /* GPS time of week of nav solution, ms */
