@@ -30,6 +30,13 @@ This should be called in your setup function. It initializes the serial communic
 gps.begin();
 ```
 
+**void end()**
+This function ends serial communication. Useful for aggresive sleep modes. Ensure the applicable ublox module is also sleeping.  For example, the following code begins serial communication:
+
+```C++
+gps.end();
+```
+
 ## Data Collection Functions
 **bool readSensor()**
 *readSensor()* reads data from the uBlox receiver and parses the UBX-NAV-PVT packet. When a complete packet is received with a valid checksum, *readSensor()* returns *true*. For example, placing the following code in the loop function will print the latitude, in degrees, to the screen at the GPS update frequency.
@@ -86,9 +93,17 @@ The most recent valid packet is stored in the UBLOX object. Data fields can be r
     <td>Number of satellites used in the navigation solution</td>
   </tr>
   <tr>
+    <td colspan=2> double getLongitude_raw()</td>
+    <td>Longitude in native format</td>
+  </tr>
+  <tr>
     <td>double getLongitude_deg()</td>
     <td>double getLongitude_rad()</td>
     <td>Longitude</td>
+  </tr>
+  <tr>
+    <td colspan=2> double getLatitude_raw()</td>
+    <td>Latitude in native format</td>
   </tr>
   <tr>
     <td>double getLatitude_deg()</td>
