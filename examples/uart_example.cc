@@ -15,8 +15,6 @@ int main() {
   Serial.println("BEGIN");
   bool status = ubx.Begin(115200);
   Serial.println(status);
-  status = ubx.EnableHighPrecision();
-  Serial.println(status);
   while(1){}
   unsigned int t1, t2;
   while (1) {

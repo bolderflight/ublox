@@ -17,16 +17,14 @@ class Ublox {
  public:
   explicit Ublox(HardwareSerial* bus);
   bool Begin(uint32_t baud);
-  bool EnableHighPrecision();
   bool Read();
-
+  types::Gnss<types::NedVel<float>, types::LlaPos<double>> gnss();
  private:
   /* Communication */
   HardwareSerial* bus_;
   /* Configuration */
   static constexpr unsigned int TIMEOUT_MS_ = 5000;
   bool use_high_precision_ = false;
-  bool ubx_nav_pvt_rx_ = false;
   /* Parsing */
   const uint8_t UBX_HEADER_[2] = {0xB5, 0x62};
   static constexpr uint8_t UBX_HEADER_LEN_ = 6;
@@ -34,15 +32,20 @@ class Ublox {
   static constexpr uint8_t UBX_NAV_CLASS_ = 0x01;
   static constexpr uint8_t UBX_PVT_LEN_ = 92;
   static constexpr uint8_t UBX_HPPOSLLH_LEN_ = 36;
+  static constexpr uint8_t UBX_EOE_LEN_ = 4;
   unsigned int parser_pos_ = 0;
   uint8_t msg_len_buffer_[2];
   uint16_t msg_len_;
   uint8_t checksum_buffer_[2];
   uint8_t rx_buffer_[96];
+  bool ubx_nav_pvt_parsed_ = false;
+  bool ubx_nav_hpposllh_parsed_ = false;
+  bool read_status_ = false;
   /* Data */
   enum Msg : uint8_t {
     UBX_NAV_PVT = 0x07,
-    UBX_NAV_HPPOSLLH = 0x14
+    UBX_NAV_HPPOSLLH = 0x14,
+    UBX_NAV_EOE = 0x61
   } msg_;
   struct {
     uint32_t itow;
@@ -95,6 +98,11 @@ class Ublox {
     uint32_t hacc;
     uint32_t vacc;
   } ubx_nav_hpposllh_;
+  struct {
+    uint32_t itow;
+  } ubx_nav_eoe_;
+  types::Gnss<types::NedVel<float>, types::LlaPos<double>> gnss_;
+  bool Epoch();
   bool Parse();
   uint16_t Checksum(uint8_t *data, uint16_t len);
 };
