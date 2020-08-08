@@ -18,7 +18,7 @@ class Ublox {
   explicit Ublox(HardwareSerial* bus);
   bool Begin(uint32_t baud);
   bool Read();
-  types::Gnss<types::NedVel<float>, types::LlaPos<double>> gnss();
+  types::Gnss<float, double> gnss();
  private:
   /* Communication */
   HardwareSerial* bus_;
@@ -101,7 +101,7 @@ class Ublox {
   struct {
     uint32_t itow;
   } ubx_nav_eoe_;
-  types::Gnss<types::NedVel<float>, types::LlaPos<double>> gnss_;
+  types::Gnss<float, double> gnss_;
   bool Epoch();
   bool Parse();
   uint16_t Checksum(uint8_t *data, uint16_t len);

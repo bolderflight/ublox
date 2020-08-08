@@ -50,19 +50,19 @@ bool Ublox::Begin(uint32_t baud) {
 }
 bool Ublox::Read() {
   if (Epoch()) {
-    gnss_.fix(static_cast<types::Gnss<types::NedVel<float>, types::LlaPos<double>>::Fix>(ubx_nav_pvt_.fix));
+    gnss_.fix(static_cast<types::Gnss<float, double>::Fix>(ubx_nav_pvt_.fix));
     gnss_.num_satellites(ubx_nav_pvt_.numsv);
     gnss_.ned_vel.north.mps(static_cast<float>(ubx_nav_pvt_.veln) / 1000.0f);
     gnss_.ned_vel.east.mps(static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f);
     gnss_.ned_vel.down.mps(static_cast<float>(ubx_nav_pvt_.veld) / 1000.0f);
     if (use_high_precision_) {
-      gnss_.lla_pos.lat.deg((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
-      gnss_.lla_pos.lon.deg((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
-      gnss_.lla_pos.alt.m((static_cast<double>(ubx_nav_hpposllh_.height) + static_cast<double>(ubx_nav_hpposllh_.heighthp) * 1e-1) * 1e-3);
+      gnss_.lla.lat.deg((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
+      gnss_.lla.lon.deg((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
+      gnss_.lla.alt.m((static_cast<double>(ubx_nav_hpposllh_.height) + static_cast<double>(ubx_nav_hpposllh_.heighthp) * 1e-1) * 1e-3);
     } else {
-      gnss_.lla_pos.lat.deg(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
-      gnss_.lla_pos.lon.deg(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
-      gnss_.lla_pos.alt.m(static_cast<double>(ubx_nav_pvt_.height) * 1e-3);
+      gnss_.lla.lat.deg(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
+      gnss_.lla.lon.deg(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
+      gnss_.lla.alt.m(static_cast<double>(ubx_nav_pvt_.height) * 1e-3);
     }
     return true;
   }
@@ -94,7 +94,7 @@ bool Ublox::Epoch() {
   }
   return false;
 }
-types::Gnss<types::NedVel<float>, types::LlaPos<double>> Ublox::gnss() {
+types::Gnss<float, double> Ublox::gnss() {
   return gnss_;
 }
 bool Ublox::Parse() {
