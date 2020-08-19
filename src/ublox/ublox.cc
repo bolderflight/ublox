@@ -50,11 +50,11 @@ bool Ublox::Begin(uint32_t baud) {
 }
 bool Ublox::Read() {
   if (Epoch()) {
-    gnss_.fix(static_cast<types::Gnss<float, double>::Fix>(ubx_nav_pvt_.fix));
+    gnss_.fix(static_cast<types::Gnss::Fix>(ubx_nav_pvt_.fix));
     gnss_.num_satellites(ubx_nav_pvt_.numsv);
-    gnss_.ned_vel.north.mps(static_cast<float>(ubx_nav_pvt_.veln) / 1000.0f);
-    gnss_.ned_vel.east.mps(static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f);
-    gnss_.ned_vel.down.mps(static_cast<float>(ubx_nav_pvt_.veld) / 1000.0f);
+    gnss_.ned_vel.north().mps(static_cast<float>(ubx_nav_pvt_.veln) / 1000.0f);
+    gnss_.ned_vel.east().mps(static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f);
+    gnss_.ned_vel.down().mps(static_cast<float>(ubx_nav_pvt_.veld) / 1000.0f);
     if (use_high_precision_) {
       gnss_.lla.lat.deg((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
       gnss_.lla.lon.deg((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
@@ -94,7 +94,7 @@ bool Ublox::Epoch() {
   }
   return false;
 }
-types::Gnss<float, double> Ublox::gnss() {
+types::Gnss Ublox::gnss() {
   return gnss_;
 }
 bool Ublox::Parse() {
