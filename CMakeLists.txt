@@ -4,28 +4,34 @@ if (DEFINED MCU)
 	set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/cortex.cmake")
 endif()
 # Project information
-project(UBLOX
-	VERSION 1.0
+project(Ublox
+	VERSION 1.0.0
 	DESCRIPTION "UBLOX sensor driver"
-	LANGUAGES C CXX
+	LANGUAGES CXX
 )
 if (DEFINED MCU)
 	# Grab the processor and set up definitions and compile options
 	include(${CMAKE_SOURCE_DIR}/cmake/config_mcu.cmake)
 	configMcu(${MCU})
-	# Fetch types
 	include(FetchContent)
-	FetchContent_Declare(
-		types
-		GIT_REPOSITORY 	git@gitlab.com:bolderflight/software/types.git
-	)
-	FetchContent_MakeAvailable(types)
 	# Fetch core
 	FetchContent_Declare(
 		core
 		GIT_REPOSITORY 	git@gitlab.com:bolderflight/software/core.git
 	)
 	FetchContent_MakeAvailable(core)
+	# Fetch eigen
+	FetchContent_Declare(
+		eigen
+		GIT_REPOSITORY 	git@gitlab.com:bolderflight/software/eigen.git
+	)
+	FetchContent_MakeAvailable(eigen)
+	# Fetch global-defs
+	FetchContent_Declare(
+		global_defs
+		GIT_REPOSITORY 	git@gitlab.com:bolderflight/software/global_defs.git
+	)
+	FetchContent_MakeAvailable(global_defs)
 	# Add the library target
 	add_library(ublox
 		src/ublox/ublox.cc
@@ -35,7 +41,8 @@ if (DEFINED MCU)
 	target_link_libraries(ublox
 		PUBLIC
 			core
-			types
+			eigen
+			global_defs
 	)
 	# Setup include directories 
 	target_include_directories(ublox PUBLIC 
@@ -43,6 +50,7 @@ if (DEFINED MCU)
 		$<INSTALL_INTERFACE:include>
 	)
 endif()
+
 # Example and test if this project is built separately
 if (PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
 	if (DEFINED MCU)

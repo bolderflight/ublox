@@ -6,6 +6,10 @@
 */
 
 #include "ublox/ublox.h"
+#include "Eigen/Core"
+#include "Eigen/Dense"
+#include "core/core.h"
+#include "global_defs/global_defs.h"
 
 namespace sensors {
 
@@ -50,23 +54,116 @@ bool Ublox::Begin(uint32_t baud) {
 }
 bool Ublox::Read() {
   if (Epoch()) {
-    gnss_.fix(static_cast<types::Gnss::Fix>(ubx_nav_pvt_.fix));
-    gnss_.num_satellites(ubx_nav_pvt_.numsv);
-    gnss_.ned_vel.north().mps(static_cast<float>(ubx_nav_pvt_.veln) / 1000.0f);
-    gnss_.ned_vel.east().mps(static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f);
-    gnss_.ned_vel.down().mps(static_cast<float>(ubx_nav_pvt_.veld) / 1000.0f);
+    tow_ms_ = ubx_nav_pvt_.itow;
+    year_ = ubx_nav_pvt_.year;
+    month_ = ubx_nav_pvt_.month;
+    day_  = ubx_nav_pvt_.day;
+    hour_ = ubx_nav_pvt_.hour;
+    min_  = ubx_nav_pvt_.min;
+    sec_  = ubx_nav_pvt_.sec;
+    nano_sec_ = ubx_nav_pvt_.nano;
+    fix_  = static_cast<FixType>(ubx_nav_pvt_.fix);
+    num_satellites_ = ubx_nav_pvt_.numsv;
+    ned_velocity_mps_(0) = static_cast<float>(ubx_nav_pvt_.veln) / 1000.0f;
+    ned_velocity_mps_(1) = static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f;
+    ned_velocity_mps_(2) = static_cast<float>(ubx_nav_pvt_.veld) / 1000.0f;
+    time_accuracy_ns_ = ubx_nav_pvt_.tacc;
+    velocity_accuracy_mps_ = static_cast<float>(ubx_nav_pvt_.sacc) / 1000.0f;
+    bool valid_date = ubx_nav_pvt_.valid & 0x01;
+    bool valid_time = ubx_nav_pvt_.valid & 0x02;
+    bool fully_resolved = ubx_nav_pvt_.valid & 0x04;
+    bool validity_confirmed = ubx_nav_pvt_.flags2 & 0x20;
+    bool confirmed_date = ubx_nav_pvt_.flags2 & 0x40;
+    bool confirmed_time = ubx_nav_pvt_.flags2 & 0x80;
+    valid_time_and_date_ = valid_date && valid_time && fully_resolved && validity_confirmed && confirmed_date && confirmed_time;
+    bool gnss_ok = ubx_nav_pvt_.flags & 0x01;
+    bool invalid_llh = ubx_nav_pvt_.flags3 & 0x01;
+    valid_gnss_fix_ = gnss_ok && !invalid_llh;
     if (use_high_precision_) {
-      gnss_.lla.lat.deg((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
-      gnss_.lla.lon.deg((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
-      gnss_.lla.alt.m((static_cast<double>(ubx_nav_hpposllh_.height) + static_cast<double>(ubx_nav_hpposllh_.heighthp) * 1e-1) * 1e-3);
+      lat_rad_ = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
+      lon_rad_ = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
+      alt_m_ = (static_cast<float>(ubx_nav_hpposllh_.height) + static_cast<float>(ubx_nav_hpposllh_.heighthp) * 0.1f) * 0.001f;
+      horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) / 10000.0f;
+      vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) / 10000.0f;
     } else {
-      gnss_.lla.lat.deg(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
-      gnss_.lla.lon.deg(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
-      gnss_.lla.alt.m(static_cast<double>(ubx_nav_pvt_.height) * 1e-3);
+      lat_rad_ = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
+      lon_rad_ = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
+      alt_m_ = static_cast<float>(ubx_nav_pvt_.height) * 0.001f;
+      horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) / 1000.0f;
+      vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) / 1000.0f;
     }
     return true;
   }
   return false;
+}
+uint32_t Ublox::tow_ms() {
+  return tow_ms_;
+}
+uint16_t Ublox::year() {
+  return year_;
+}
+uint8_t Ublox::month() {
+  return month_;
+}
+uint8_t Ublox::day() {
+  return day_;
+}
+uint8_t Ublox::hour() {
+  return hour_;
+}
+uint8_t Ublox::min() {
+  return min_;
+}
+uint8_t Ublox::sec() {
+  return sec_;
+}
+int32_t Ublox::nano_sec() {
+  return nano_sec_;
+}
+Ublox::FixType Ublox::fix() {
+  return fix_;
+}
+uint8_t Ublox::num_satellites() {
+  return num_satellites_;
+}
+double Ublox::lat_rad() {
+  return lat_rad_;
+}
+double Ublox::lon_rad() {
+  return lon_rad_;
+}
+float Ublox::alt_m() {
+  return alt_m_;
+}
+Eigen::Vector3f Ublox::ned_velocity_mps() {
+  return ned_velocity_mps_;
+}
+float Ublox::north_velocity_mps() {
+  return ned_velocity_mps_(0);
+}
+float Ublox::east_velocity_mps() {
+  return ned_velocity_mps_(1);
+}
+float Ublox::down_velocity_mps() {
+  return ned_velocity_mps_(2);
+}
+uint32_t Ublox::time_accuracy_ns() {
+  return time_accuracy_ns_;
+}
+float Ublox::horizontal_accuracy_m() {
+  return horizontal_accuracy_m_;
+}
+float Ublox::vertical_accuracy_m() {
+  return vertical_accuracy_m_;
+}
+float Ublox::velocity_accuracy_mps() {
+  return velocity_accuracy_mps_;
+}
+bool Ublox::valid_time_and_date() {
+  return valid_time_and_date_;
+}
+bool Ublox::valid_gnss_fix() {
+  return valid_gnss_fix_;
 }
 bool Ublox::Epoch() {
   if (Parse()) {
@@ -93,9 +190,6 @@ bool Ublox::Epoch() {
     }
   }
   return false;
-}
-types::Gnss Ublox::gnss() {
-  return gnss_;
 }
 bool Ublox::Parse() {
   while (bus_->available()) {

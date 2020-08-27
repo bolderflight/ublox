@@ -1,0 +1,11 @@
+stages:
+  - lint
+
+Lint:
+  stage: lint
+  tags:
+    - bfs
+  script: 
+    - cpplint.py --verbose=0 --filter=-whitespace,-line_length src/ublox/ublox.cc
+    - cpplint.py --verbose=0 include/ublox/ublox.h
+  

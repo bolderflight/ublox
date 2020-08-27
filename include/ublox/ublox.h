@@ -8,17 +8,49 @@
 #ifndef INCLUDE_UBLOX_UBLOX_H_
 #define INCLUDE_UBLOX_UBLOX_H_
 
-#include "types/types.h"
+#include "Eigen/Core"
+#include "Eigen/Dense"
 #include "core/core.h"
 
 namespace sensors {
 
 class Ublox {
  public:
+  enum FixType {
+    FIX_NONE = 0,
+    FIX_DEAD_RECKONING_ONLY = 1,
+    FIX_2D = 2,
+    FIX_3D = 3,
+    FIX_GNSS_DEAD_RECKONING = 4,
+    FIX_TIME_ONLY = 5
+  };
   explicit Ublox(HardwareSerial* bus);
   bool Begin(uint32_t baud);
   bool Read();
-  types::Gnss gnss();
+  uint32_t tow_ms();
+  uint16_t year();
+  uint8_t month();
+  uint8_t day();
+  uint8_t hour();
+  uint8_t min();
+  uint8_t sec();
+  int32_t nano_sec();
+  FixType fix();
+  uint8_t num_satellites();
+  double lat_rad();
+  double lon_rad();
+  float alt_m();
+  Eigen::Vector3f ned_velocity_mps();
+  float north_velocity_mps();
+  float east_velocity_mps();
+  float down_velocity_mps();
+  uint32_t time_accuracy_ns();
+  float horizontal_accuracy_m();
+  float vertical_accuracy_m();
+  float velocity_accuracy_mps();
+  bool valid_time_and_date();
+  bool valid_gnss_fix();
+
  private:
   /* Communication */
   HardwareSerial* bus_;
@@ -41,7 +73,7 @@ class Ublox {
   bool ubx_nav_pvt_parsed_ = false;
   bool ubx_nav_hpposllh_parsed_ = false;
   bool read_status_ = false;
-  /* Data */
+  /* Data Packets */
   enum Msg : uint8_t {
     UBX_NAV_PVT = 0x07,
     UBX_NAV_HPPOSLLH = 0x14,
@@ -101,13 +133,32 @@ class Ublox {
   struct {
     uint32_t itow;
   } ubx_nav_eoe_;
-  types::Gnss gnss_;
+  /* Processed Data */
+  uint32_t tow_ms_;
+  uint16_t year_;
+  uint8_t month_;
+  uint8_t day_;
+  uint8_t hour_;
+  uint8_t min_;
+  uint8_t sec_;
+  int32_t nano_sec_;
+  FixType fix_;
+  uint8_t num_satellites_;
+  double lat_rad_;
+  double lon_rad_;
+  float alt_m_;
+  Eigen::Vector3f ned_velocity_mps_;
+  uint32_t time_accuracy_ns_;
+  float horizontal_accuracy_m_;
+  float vertical_accuracy_m_;
+  float velocity_accuracy_mps_;
+  bool valid_time_and_date_;
+  bool valid_gnss_fix_;
   bool Epoch();
   bool Parse();
   uint16_t Checksum(uint8_t *data, uint16_t len);
 };
 
 }  // namespace sensors
-
 
 #endif  // INCLUDE_UBLOX_UBLOX_H_
