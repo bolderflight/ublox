@@ -5,7 +5,7 @@ if (DEFINED MCU)
 endif()
 # Project information
 project(Ublox
-	VERSION 1.0.0
+	VERSION 1.1.0
 	DESCRIPTION "UBLOX sensor driver"
 	LANGUAGES CXX
 )
