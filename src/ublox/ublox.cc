@@ -80,15 +80,15 @@ bool Ublox::Read() {
     bool invalid_llh = ubx_nav_pvt_.flags3 & 0x01;
     valid_gnss_fix_ = gnss_ok && !invalid_llh;
     if (use_high_precision_) {
-      lat_rad_ = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
-      lon_rad_ = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
-      alt_m_ = (static_cast<float>(ubx_nav_hpposllh_.height) + static_cast<float>(ubx_nav_hpposllh_.heighthp) * 0.1f) * 0.001f;
+      lla_rad_m_(0) = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
+      lla_rad_m_(1) = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
+      lla_rad_m_(2) = (static_cast<double>(ubx_nav_hpposllh_.height) + static_cast<double>(ubx_nav_hpposllh_.heighthp) * 0.1f) * 0.001f;
       horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) / 10000.0f;
       vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) / 10000.0f;
     } else {
-      lat_rad_ = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
-      lon_rad_ = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
-      alt_m_ = static_cast<float>(ubx_nav_pvt_.height) * 0.001f;
+      lla_rad_m_(0) = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
+      lla_rad_m_(1) = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
+      lla_rad_m_(2) = static_cast<double>(ubx_nav_pvt_.height) * 0.001f;
       horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) / 1000.0f;
       vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) / 1000.0f;
     }
@@ -126,14 +126,17 @@ Ublox::FixType Ublox::fix() {
 uint8_t Ublox::num_satellites() {
   return num_satellites_;
 }
+Eigen::Vector3d Ublox::lla_rad_m() {
+  return lla_rad_m_;
+}
 double Ublox::lat_rad() {
-  return lat_rad_;
+  return lla_rad_m_(0);
 }
 double Ublox::lon_rad() {
-  return lon_rad_;
+  return lla_rad_m_(1);
 }
 float Ublox::alt_m() {
-  return alt_m_;
+  return static_cast<float>(lla_rad_m_(2));
 }
 Eigen::Vector3f Ublox::ned_velocity_mps() {
   return ned_velocity_mps_;

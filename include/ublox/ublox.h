@@ -37,6 +37,7 @@ class Ublox {
   int32_t nano_sec();
   FixType fix();
   uint8_t num_satellites();
+  Eigen::Vector3d lla_rad_m();
   double lat_rad();
   double lon_rad();
   float alt_m();
@@ -144,9 +145,7 @@ class Ublox {
   int32_t nano_sec_;
   FixType fix_;
   uint8_t num_satellites_;
-  double lat_rad_;
-  double lon_rad_;
-  float alt_m_;
+  Eigen::Vector3d lla_rad_m_;
   Eigen::Vector3f ned_velocity_mps_;
   uint32_t time_accuracy_ns_;
   float horizontal_accuracy_m_;
