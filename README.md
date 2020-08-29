@@ -107,6 +107,8 @@ Note that dead reckoning is only supported on dead-reckoning capable receivers.
 
 **uint8_t num_satellites()** The number of satellites used in the navigation solution
 
+**Eigen::Vector3d lla_rad_m()** Latitude (rad), longitude (rad), and altitude above the WGS-84 ellipsoid (m) returned as an Eigen::Vector object
+
 **double lat_rad()** Latitude, rad
 
 **double lon_rad()** Longitude, rad
