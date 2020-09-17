@@ -70,8 +70,11 @@ bool Ublox::Read() {
       ned_velocity_mps_(0) = static_cast<float>(ubx_nav_pvt_.veln) / 1000.0f;
       ned_velocity_mps_(1) = static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f;
       ned_velocity_mps_(2) = static_cast<float>(ubx_nav_pvt_.veld) / 1000.0f;
+      ground_speed_mps_ = static_cast<float>(ubx_nav_pvt_.gspeed) / 1000.0f;
+      ground_track_rad_ = global::conversions::Deg_to_Rad(static_cast<float>(ubx_nav_pvt_.headmot) / 100000.0f);
       time_accuracy_ns_ = ubx_nav_pvt_.tacc;
       velocity_accuracy_mps_ = static_cast<float>(ubx_nav_pvt_.sacc) / 1000.0f;
+      heading_accuracy_rad_ = global::conversions::Deg_to_Rad(static_cast<float>(ubx_nav_pvt_.headacc) / 100000.0f);
       bool valid_date = ubx_nav_pvt_.valid & 0x01;
       bool valid_time = ubx_nav_pvt_.valid & 0x02;
       bool fully_resolved = ubx_nav_pvt_.valid & 0x04;
@@ -83,15 +86,21 @@ bool Ublox::Read() {
       bool invalid_llh = ubx_nav_pvt_.flags3 & 0x01;
       valid_gnss_fix_ = gnss_ok && !invalid_llh;
       if (use_high_precision_) {
-        lla_rad_m_(0) = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
-        lla_rad_m_(1) = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
-        lla_rad_m_(2) = (static_cast<double>(ubx_nav_hpposllh_.height) + static_cast<double>(ubx_nav_hpposllh_.heighthp) * 0.1f) * 0.001f;
+        lla_wgs84_rad_m_(0) = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
+        lla_wgs84_rad_m_(1) = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
+        lla_wgs84_rad_m_(2) = (static_cast<double>(ubx_nav_hpposllh_.height) + static_cast<double>(ubx_nav_hpposllh_.heighthp) * 0.1f) * 0.001f;
+        lla_msl_rad_m_(0) = lla_wgs84_rad_m_(0);
+        lla_msl_rad_m_(1) = lla_wgs84_rad_m_(1);
+        lla_msl_rad_m_(2) = (static_cast<double>(ubx_nav_hpposllh_.hmsl) + static_cast<double>(ubx_nav_hpposllh_.hmslhp) * 0.1f) * 0.001f;
         horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) / 10000.0f;
         vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) / 10000.0f;
       } else {
-        lla_rad_m_(0) = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
-        lla_rad_m_(1) = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
-        lla_rad_m_(2) = static_cast<double>(ubx_nav_pvt_.height) * 0.001f;
+        lla_wgs84_rad_m_(0) = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
+        lla_wgs84_rad_m_(1) = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
+        lla_wgs84_rad_m_(2) = static_cast<double>(ubx_nav_pvt_.height) * 0.001f;
+        lla_msl_rad_m_(0) = lla_wgs84_rad_m_(0);
+        lla_msl_rad_m_(1) = lla_wgs84_rad_m_(1);
+        lla_msl_rad_m_(2) = static_cast<double>(ubx_nav_pvt_.hmsl) * 0.001f;
         horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) / 1000.0f;
         vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) / 1000.0f;
       }
@@ -130,17 +139,23 @@ Ublox::FixType Ublox::fix() {
 uint8_t Ublox::num_satellites() {
   return num_satellites_;
 }
-Eigen::Vector3d Ublox::lla_rad_m() {
-  return lla_rad_m_;
+Eigen::Vector3d Ublox::lla_msl_rad_m() {
+  return lla_msl_rad_m_;
+}
+Eigen::Vector3d Ublox::lla_wgs84_rad_m() {
+  return lla_wgs84_rad_m_;
 }
 double Ublox::lat_rad() {
-  return lla_rad_m_(0);
+  return lla_wgs84_rad_m_(0);
 }
 double Ublox::lon_rad() {
-  return lla_rad_m_(1);
+  return lla_wgs84_rad_m_(1);
 }
-float Ublox::alt_m() {
-  return static_cast<float>(lla_rad_m_(2));
+float Ublox::alt_msl_m() {
+  return static_cast<float>(lla_msl_rad_m_(2));
+}
+float Ublox::alt_wgs84_m() {
+  return static_cast<float>(lla_wgs84_rad_m_(2));
 }
 Eigen::Vector3f Ublox::ned_velocity_mps() {
   return ned_velocity_mps_;
@@ -154,6 +169,12 @@ float Ublox::east_velocity_mps() {
 float Ublox::down_velocity_mps() {
   return ned_velocity_mps_(2);
 }
+float Ublox::ground_speed_mps() {
+  return ground_speed_mps_;
+}
+float Ublox::ground_track_rad() {
+  return ground_track_rad_;
+}
 uint32_t Ublox::time_accuracy_ns() {
   return time_accuracy_ns_;
 }
@@ -165,6 +186,9 @@ float Ublox::vertical_accuracy_m() {
 }
 float Ublox::velocity_accuracy_mps() {
   return velocity_accuracy_mps_;
+}
+float Ublox::track_accuracy_rad() {
+  return heading_accuracy_rad_;
 }
 bool Ublox::valid_time_and_date() {
   return valid_time_and_date_;

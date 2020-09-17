@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.2.0
+- Added MSL and WGS84 altitude. Added ground speed, ground track, and track accuracy.
+
 ## v1.1.1
 - Modified sensors::Ublox::Begin to flush the serial buffer after initializing communication and sensors::Ublox::Read to read through all available bytes, keeping the most recent parsed data. This should help the library keep up when run at lower rates.
 
