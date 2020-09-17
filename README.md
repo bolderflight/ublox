@@ -107,13 +107,17 @@ Note that dead reckoning is only supported on dead-reckoning capable receivers.
 
 **uint8_t num_satellites()** The number of satellites used in the navigation solution
 
-**Eigen::Vector3d lla_rad_m()** Latitude (rad), longitude (rad), and altitude above the WGS-84 ellipsoid (m) returned as an Eigen::Vector object
+**Eigen::Vector3d lla_wgs84_rad_m()** Latitude (rad), longitude (rad), and altitude above the WGS-84 ellipsoid (m) returned as an Eigen::Vector object
+
+**Eigen::Vector3d lla_msl_rad_m()** Latitude (rad), longitude (rad), and altitude above MSL (m) returned as an Eigen::Vector object
 
 **double lat_rad()** Latitude, rad
 
 **double lon_rad()** Longitude, rad
 
-**float alt_m()** Altitude above the WGS-84 ellipsoid, m
+**float alt_wgs84_m()** Altitude above the WGS-84 ellipsoid, m
+
+**float alt_msl_m()** Altitude above MSL, m
 
 **Eigen::Vector3f ned_velocity_mps()** North, east, down velocity returned as an Eigen::Vector object, m/s
 
@@ -123,6 +127,10 @@ Note that dead reckoning is only supported on dead-reckoning capable receivers.
 
 **float down_velocity_mps()** Down velocity, m/s
 
+**float ground_speed_mps()** Ground speed, m/s
+
+**float ground_track_rad()** Ground track, rad
+
 **uint32_t time_accuracy_ns()** Accuracy of the time solution, ns
 
 **float horizontal_accuracy_m()** Horizontal position accuracy, m
@@ -130,6 +138,8 @@ Note that dead reckoning is only supported on dead-reckoning capable receivers.
 **float vertical_accuracy_m()** Vertical position accuracy, m
 
 **float velocity_accuracy_mps()** Velocity accuracy, m/s
+
+**float track_accuracy_rad()** Ground track accuracy, rad
 
 **bool valid_time_and_date()** Whether the date and time data is valid
 
