@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.2.1
+- Updated to MIT license.
+- Specified versions for dependencies.
+
 ## v1.2.0
 - Added MSL and WGS84 altitude. Added ground speed, ground track, and track accuracy.
 
