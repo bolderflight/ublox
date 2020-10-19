@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.2
+- Updated CONTRIBUTING
+- Updated *fetch_content* to use https instead of ssh
+- Updated *flash_mcu.cmake* to use local loader on Linux
+
 ## v1.2.1
 - Updated to MIT license.
 - Specified versions for dependencies.
