@@ -48,6 +48,7 @@ class UBLOX{
       FIXED_SOL
     };
     UBLOX(HardwareSerial& bus,uint32_t baud);
+    UBLOX(HardwareSerial& bus);
     void begin();
     bool readSensor();
     uint32_t getTow_ms();

@@ -25,9 +25,18 @@
 /* uBlox object, input the serial bus and baud rate */
 UBLOX::UBLOX(HardwareSerial& bus,uint32_t baud)
 {
-  _bus = &bus;
+	_bus = &bus;
 	_baud = baud;
 }
+
+/* uBlox object, input the serial bus */
+UBLOX::UBLOX(HardwareSerial& bus)
+{
+	_bus = &bus;
+	_baud = 0;
+	_parserState=0;
+}
+
 
 /* starts the serial communication */
 void UBLOX::begin()
