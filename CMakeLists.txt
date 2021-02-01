@@ -5,7 +5,7 @@ if (DEFINED MCU)
 endif()
 # Project information
 project(Ublox
-	VERSION 1.2.2
+	VERSION 1.2.3
 	DESCRIPTION "UBLOX sensor driver"
 	LANGUAGES CXX
 )
@@ -18,7 +18,7 @@ if (DEFINED MCU)
 	FetchContent_Declare(
 		core
 		GIT_REPOSITORY 	https://gitlab.com/bolderflight/software/core.git
-		GIT_TAG v1.0.3
+		GIT_TAG v2.0.2
 	)
 	FetchContent_MakeAvailable(core)
 	# Fetch eigen
