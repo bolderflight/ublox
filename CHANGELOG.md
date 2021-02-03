@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.2.4
+- Updated for core v2.0.3
+
 ## v1.2.3
 - Updated to support Teensy 4.x
 
