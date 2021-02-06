@@ -23,10 +23,13 @@
 #include "UBLOX.h"
 
 /* uBlox object, input the serial bus and baud rate */
-UBLOX::UBLOX(HardwareSerial& bus,uint32_t baud)
+UBLOX::UBLOX(HardwareSerial& bus,uint32_t baud, uint32_t config, int8_t rxPin, int8_t txPin)
 {
-  _bus = &bus;
+	_bus = &bus;
 	_baud = baud;
+	_config = config;
+	_rxPin = rxPin;
+	_txPin = txPin;
 }
 
 /* starts the serial communication */
@@ -35,7 +38,7 @@ void UBLOX::begin()
 	// initialize parsing state
 	_parserState = 0;
 	// begin the serial port for uBlox
-	_bus->begin(_baud);
+	_bus->begin(_baud, _config, _rxPin, _txPin);
 }
 
 /* reads packets from the uBlox receiver */

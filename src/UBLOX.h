@@ -47,7 +47,7 @@ class UBLOX{
       FLOAT_SOL,
       FIXED_SOL
     };
-    UBLOX(HardwareSerial& bus,uint32_t baud);
+    UBLOX(HardwareSerial& bus,uint32_t baud, uint32_t config=SERIAL_8N1, int8_t rxPin=-1, int8_t txPin=-1);
     void begin();
     bool readSensor();
     uint32_t getTow_ms();
@@ -108,6 +108,9 @@ class UBLOX{
   private:
     HardwareSerial* _bus;
     uint32_t _baud;
+    uint32_t _config;
+    uint8_t _rxPin;
+    uint8_t _txPin;
   	uint8_t _parserState;
     const uint8_t _ubxHeader[2] = {0xB5, 0x62};
     const uint8_t _ubxNavPvt_msgClass = 0x01;
