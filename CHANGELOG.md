@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.2.5
+- Updated for core v2.0.4 and units v2.0.0
+
 ## v1.2.4
 - Updated for core v2.0.3
 

@@ -2,11 +2,11 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2020 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems
 */
 
 #include "ublox/ublox.h"
-#include "global_defs/global_defs.h"
+#include "units/units.h"
 
 sensors::Ublox ubx(&Serial1);
 
@@ -56,7 +56,7 @@ int main() {
       // Serial.print("\t");
       // Serial.print(ubx.ground_speed_mps());
       // Serial.print("\t");
-      // Serial.print(global::conversions::Rad_to_Deg(ubx.ground_track_rad()));
+      // Serial.print(conversions::Rad_to_Deg(ubx.ground_track_rad()));
       // Serial.print("\t");
       // Serial.print(ubx.time_accuracy_ns());
       // Serial.print("\t");
@@ -66,7 +66,7 @@ int main() {
       // Serial.print("\t");
       // Serial.print(ubx.velocity_accuracy_mps());
       // Serial.print("\t");
-      // Serial.print(global::conversions::Rad_to_Deg(ubx.track_accuracy_rad()));
+      // Serial.print(conversions::Rad_to_Deg(ubx.track_accuracy_rad()));
       // Serial.print("\t");
       // Serial.print(ubx.valid_time_and_date());
       // Serial.print("\t");
