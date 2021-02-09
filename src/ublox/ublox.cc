@@ -2,14 +2,14 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2020 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems
 */
 
 #include "ublox/ublox.h"
 #include "Eigen/Core"
 #include "Eigen/Dense"
 #include "core/core.h"
-#include "global_defs/global_defs.h"
+#include "units/units.h"
 
 namespace sensors {
 
@@ -71,10 +71,10 @@ bool Ublox::Read() {
       ned_velocity_mps_(1) = static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f;
       ned_velocity_mps_(2) = static_cast<float>(ubx_nav_pvt_.veld) / 1000.0f;
       ground_speed_mps_ = static_cast<float>(ubx_nav_pvt_.gspeed) / 1000.0f;
-      ground_track_rad_ = global::conversions::Deg_to_Rad(static_cast<float>(ubx_nav_pvt_.headmot) / 100000.0f);
+      ground_track_rad_ = conversions::Deg_to_Rad(static_cast<float>(ubx_nav_pvt_.headmot) / 100000.0f);
       time_accuracy_ns_ = ubx_nav_pvt_.tacc;
       velocity_accuracy_mps_ = static_cast<float>(ubx_nav_pvt_.sacc) / 1000.0f;
-      heading_accuracy_rad_ = global::conversions::Deg_to_Rad(static_cast<float>(ubx_nav_pvt_.headacc) / 100000.0f);
+      heading_accuracy_rad_ = conversions::Deg_to_Rad(static_cast<float>(ubx_nav_pvt_.headacc) / 100000.0f);
       bool valid_date = ubx_nav_pvt_.valid & 0x01;
       bool valid_time = ubx_nav_pvt_.valid & 0x02;
       bool fully_resolved = ubx_nav_pvt_.valid & 0x04;
@@ -86,8 +86,8 @@ bool Ublox::Read() {
       bool invalid_llh = ubx_nav_pvt_.flags3 & 0x01;
       valid_gnss_fix_ = gnss_ok && !invalid_llh;
       if (use_high_precision_) {
-        lla_wgs84_rad_m_(0) = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
-        lla_wgs84_rad_m_(1) = global::conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
+        lla_wgs84_rad_m_(0) = conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
+        lla_wgs84_rad_m_(1) = conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
         lla_wgs84_rad_m_(2) = (static_cast<double>(ubx_nav_hpposllh_.height) + static_cast<double>(ubx_nav_hpposllh_.heighthp) * 0.1f) * 0.001f;
         lla_msl_rad_m_(0) = lla_wgs84_rad_m_(0);
         lla_msl_rad_m_(1) = lla_wgs84_rad_m_(1);
@@ -95,8 +95,8 @@ bool Ublox::Read() {
         horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) / 10000.0f;
         vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) / 10000.0f;
       } else {
-        lla_wgs84_rad_m_(0) = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
-        lla_wgs84_rad_m_(1) = global::conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
+        lla_wgs84_rad_m_(0) = conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
+        lla_wgs84_rad_m_(1) = conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
         lla_wgs84_rad_m_(2) = static_cast<double>(ubx_nav_pvt_.height) * 0.001f;
         lla_msl_rad_m_(0) = lla_wgs84_rad_m_(0);
         lla_msl_rad_m_(1) = lla_wgs84_rad_m_(1);
