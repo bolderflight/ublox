@@ -2,7 +2,25 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems Inc
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the “Software”), to
+* deal in the Software without restriction, including without limitation the
+* rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+* sell copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+* IN THE SOFTWARE.
 */
 
 #ifndef INCLUDE_UBLOX_UBLOX_H_
@@ -12,7 +30,7 @@
 #include "Eigen/Dense"
 #include "core/core.h"
 
-namespace sensors {
+namespace bfs {
 
 class Ublox {
  public:
@@ -24,38 +42,38 @@ class Ublox {
     FIX_GNSS_DEAD_RECKONING = 4,
     FIX_TIME_ONLY = 5
   };
-  explicit Ublox(HardwareSerial* bus);
+  explicit Ublox(HardwareSerial* bus) : bus_(bus) {}
   bool Begin(uint32_t baud);
   bool Read();
-  uint32_t tow_ms();
-  uint16_t year();
-  uint8_t month();
-  uint8_t day();
-  uint8_t hour();
-  uint8_t min();
-  uint8_t sec();
-  int32_t nano_sec();
-  FixType fix();
-  uint8_t num_satellites();
-  Eigen::Vector3d lla_msl_rad_m();
-  Eigen::Vector3d lla_wgs84_rad_m();
-  double lat_rad();
-  double lon_rad();
-  float alt_msl_m();
-  float alt_wgs84_m();
-  Eigen::Vector3f ned_velocity_mps();
-  float north_velocity_mps();
-  float east_velocity_mps();
-  float down_velocity_mps();
-  float ground_speed_mps();
-  float ground_track_rad();
-  uint32_t time_accuracy_ns();
-  float horizontal_accuracy_m();
-  float vertical_accuracy_m();
-  float velocity_accuracy_mps();
-  float track_accuracy_rad();
-  bool valid_time_and_date();
-  bool valid_gnss_fix();
+  inline uint32_t tow_ms() const {return tow_ms_;}
+  inline uint16_t year() const {return year_;}
+  inline uint8_t month() const {return month_;}
+  inline uint8_t day() const {return day_;}
+  inline uint8_t hour() const {return hour_;}
+  inline uint8_t min() const {return min_;}
+  inline uint8_t sec() const {return sec_;}
+  inline int32_t nano_sec() const {return nano_sec_;}
+  inline FixType fix() const {return fix_;}
+  inline uint8_t num_satellites() const {return num_satellites_;}
+  inline Eigen::Vector3d lla_msl_rad_m() const {return lla_msl_rad_m_;}
+  inline Eigen::Vector3d lla_wgs84_rad_m() const {return lla_wgs84_rad_m_;}
+  inline double lat_rad() const {return lla_wgs84_rad_m_(0);}
+  inline double lon_rad() const {return lla_wgs84_rad_m_(1);}
+  inline float alt_msl_m() const {return lla_msl_rad_m_(2);}
+  inline float alt_wgs84_m() const {return lla_wgs84_rad_m_(2);}
+  inline Eigen::Vector3f ned_velocity_mps() const {return ned_velocity_mps_;}
+  inline float north_velocity_mps() const {return ned_velocity_mps_(0);}
+  inline float east_velocity_mps() const {return ned_velocity_mps_(1);}
+  inline float down_velocity_mps() const {return ned_velocity_mps_(2);}
+  inline float ground_speed_mps() const {return ground_speed_mps_;}
+  inline float ground_track_rad() const {return ground_track_rad_;}
+  inline uint32_t time_accuracy_ns() const {return time_accuracy_ns_;}
+  inline float horizontal_accuracy_m() const {return horizontal_accuracy_m_;}
+  inline float vertical_accuracy_m() const {return vertical_accuracy_m_;}
+  inline float velocity_accuracy_mps() const {return velocity_accuracy_mps_;}
+  inline float track_accuracy_rad() const {return heading_accuracy_rad_;}
+  inline bool valid_time_and_date() const {return valid_time_and_date_;}
+  inline bool valid_gnss_fix() const {return valid_gnss_fix_;}
 
  private:
   /* Communication */
@@ -167,6 +185,6 @@ class Ublox {
   uint16_t Checksum(uint8_t *data, uint16_t len);
 };
 
-}  // namespace sensors
+}  // namespace bfs
 
 #endif  // INCLUDE_UBLOX_UBLOX_H_

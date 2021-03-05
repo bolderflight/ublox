@@ -2,7 +2,25 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems
+* Copyright (c) 2021 Bolder Flight Systems Inc
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the “Software”), to
+* deal in the Software without restriction, including without limitation the
+* rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+* sell copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+* IN THE SOFTWARE.
 */
 
 #include "ublox/ublox.h"
@@ -11,11 +29,8 @@
 #include "core/core.h"
 #include "units/units.h"
 
-namespace sensors {
+namespace bfs {
 
-Ublox::Ublox(HardwareSerial* bus) {
-  bus_ = bus;
-}
 bool Ublox::Begin(uint32_t baud) {
   bus_->begin(baud);
   parser_pos_ = 0;
@@ -71,130 +86,60 @@ bool Ublox::Read() {
       ned_velocity_mps_(1) = static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f;
       ned_velocity_mps_(2) = static_cast<float>(ubx_nav_pvt_.veld) / 1000.0f;
       ground_speed_mps_ = static_cast<float>(ubx_nav_pvt_.gspeed) / 1000.0f;
-      ground_track_rad_ = conversions::Deg_to_Rad(static_cast<float>(ubx_nav_pvt_.headmot) / 100000.0f);
+      ground_track_rad_ = deg2rad(static_cast<float>(ubx_nav_pvt_.headmot) /
+                          100000.0f);
       time_accuracy_ns_ = ubx_nav_pvt_.tacc;
       velocity_accuracy_mps_ = static_cast<float>(ubx_nav_pvt_.sacc) / 1000.0f;
-      heading_accuracy_rad_ = conversions::Deg_to_Rad(static_cast<float>(ubx_nav_pvt_.headacc) / 100000.0f);
+      heading_accuracy_rad_ = deg2rad(static_cast<float>(ubx_nav_pvt_.headacc)
+                              / 100000.0f);
       bool valid_date = ubx_nav_pvt_.valid & 0x01;
       bool valid_time = ubx_nav_pvt_.valid & 0x02;
       bool fully_resolved = ubx_nav_pvt_.valid & 0x04;
       bool validity_confirmed = ubx_nav_pvt_.flags2 & 0x20;
       bool confirmed_date = ubx_nav_pvt_.flags2 & 0x40;
       bool confirmed_time = ubx_nav_pvt_.flags2 & 0x80;
-      valid_time_and_date_ = valid_date && valid_time && fully_resolved && validity_confirmed && confirmed_date && confirmed_time;
+      valid_time_and_date_ = valid_date && valid_time && fully_resolved &&
+                             validity_confirmed && confirmed_date &&
+                             confirmed_time;
       bool gnss_ok = ubx_nav_pvt_.flags & 0x01;
       bool invalid_llh = ubx_nav_pvt_.flags3 & 0x01;
       valid_gnss_fix_ = gnss_ok && !invalid_llh;
       if (use_high_precision_) {
-        lla_wgs84_rad_m_(0) = conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lat) + static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
-        lla_wgs84_rad_m_(1) = conversions::Deg_to_Rad((static_cast<double>(ubx_nav_hpposllh_.lon) + static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
-        lla_wgs84_rad_m_(2) = (static_cast<double>(ubx_nav_hpposllh_.height) + static_cast<double>(ubx_nav_hpposllh_.heighthp) * 0.1f) * 0.001f;
+        lla_wgs84_rad_m_(0) =
+          deg2rad((static_cast<double>(ubx_nav_hpposllh_.lat) +
+          static_cast<double>(ubx_nav_hpposllh_.lathp) * 1e-2) * 1e-7);
+        lla_wgs84_rad_m_(1) =
+          deg2rad((static_cast<double>(ubx_nav_hpposllh_.lon) +
+          static_cast<double>(ubx_nav_hpposllh_.lonhp) * 1e-2) * 1e-7);
+        lla_wgs84_rad_m_(2) = (static_cast<double>(ubx_nav_hpposllh_.height) +
+          static_cast<double>(ubx_nav_hpposllh_.heighthp) * 0.1f) * 0.001f;
         lla_msl_rad_m_(0) = lla_wgs84_rad_m_(0);
         lla_msl_rad_m_(1) = lla_wgs84_rad_m_(1);
-        lla_msl_rad_m_(2) = (static_cast<double>(ubx_nav_hpposllh_.hmsl) + static_cast<double>(ubx_nav_hpposllh_.hmslhp) * 0.1f) * 0.001f;
-        horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) / 10000.0f;
-        vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) / 10000.0f;
+        lla_msl_rad_m_(2) = (static_cast<double>(ubx_nav_hpposllh_.hmsl) +
+          static_cast<double>(ubx_nav_hpposllh_.hmslhp) * 0.1f) * 0.001f;
+        horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) /
+                                 10000.0f;
+        vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) /
+                               10000.0f;
       } else {
-        lla_wgs84_rad_m_(0) = conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
-        lla_wgs84_rad_m_(1) = conversions::Deg_to_Rad(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
-        lla_wgs84_rad_m_(2) = static_cast<double>(ubx_nav_pvt_.height) * 0.001f;
+        lla_wgs84_rad_m_(0) =
+          deg2rad(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
+        lla_wgs84_rad_m_(1) =
+          deg2rad(static_cast<double>(ubx_nav_pvt_.lon) * 1e-7);
+        lla_wgs84_rad_m_(2) = static_cast<double>(ubx_nav_pvt_.height) *
+                              0.001f;
         lla_msl_rad_m_(0) = lla_wgs84_rad_m_(0);
         lla_msl_rad_m_(1) = lla_wgs84_rad_m_(1);
         lla_msl_rad_m_(2) = static_cast<double>(ubx_nav_pvt_.hmsl) * 0.001f;
-        horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) / 1000.0f;
-        vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) / 1000.0f;
+        horizontal_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.hacc) /
+                                 1000.0f;
+        vertical_accuracy_m_ = static_cast<float>(ubx_nav_hpposllh_.vacc) /
+                               1000.0f;
       }
       status = true;
     }
   }
   return status;
-}
-uint32_t Ublox::tow_ms() {
-  return tow_ms_;
-}
-uint16_t Ublox::year() {
-  return year_;
-}
-uint8_t Ublox::month() {
-  return month_;
-}
-uint8_t Ublox::day() {
-  return day_;
-}
-uint8_t Ublox::hour() {
-  return hour_;
-}
-uint8_t Ublox::min() {
-  return min_;
-}
-uint8_t Ublox::sec() {
-  return sec_;
-}
-int32_t Ublox::nano_sec() {
-  return nano_sec_;
-}
-Ublox::FixType Ublox::fix() {
-  return fix_;
-}
-uint8_t Ublox::num_satellites() {
-  return num_satellites_;
-}
-Eigen::Vector3d Ublox::lla_msl_rad_m() {
-  return lla_msl_rad_m_;
-}
-Eigen::Vector3d Ublox::lla_wgs84_rad_m() {
-  return lla_wgs84_rad_m_;
-}
-double Ublox::lat_rad() {
-  return lla_wgs84_rad_m_(0);
-}
-double Ublox::lon_rad() {
-  return lla_wgs84_rad_m_(1);
-}
-float Ublox::alt_msl_m() {
-  return static_cast<float>(lla_msl_rad_m_(2));
-}
-float Ublox::alt_wgs84_m() {
-  return static_cast<float>(lla_wgs84_rad_m_(2));
-}
-Eigen::Vector3f Ublox::ned_velocity_mps() {
-  return ned_velocity_mps_;
-}
-float Ublox::north_velocity_mps() {
-  return ned_velocity_mps_(0);
-}
-float Ublox::east_velocity_mps() {
-  return ned_velocity_mps_(1);
-}
-float Ublox::down_velocity_mps() {
-  return ned_velocity_mps_(2);
-}
-float Ublox::ground_speed_mps() {
-  return ground_speed_mps_;
-}
-float Ublox::ground_track_rad() {
-  return ground_track_rad_;
-}
-uint32_t Ublox::time_accuracy_ns() {
-  return time_accuracy_ns_;
-}
-float Ublox::horizontal_accuracy_m() {
-  return horizontal_accuracy_m_;
-}
-float Ublox::vertical_accuracy_m() {
-  return vertical_accuracy_m_;
-}
-float Ublox::velocity_accuracy_mps() {
-  return velocity_accuracy_mps_;
-}
-float Ublox::track_accuracy_rad() {
-  return heading_accuracy_rad_;
-}
-bool Ublox::valid_time_and_date() {
-  return valid_time_and_date_;
-}
-bool Ublox::valid_gnss_fix() {
-  return valid_gnss_fix_;
 }
 bool Ublox::Epoch() {
   if (Parse()) {
@@ -242,7 +187,8 @@ bool Ublox::Parse() {
       }
     /* Message ID */
     } else if (parser_pos_ == 3) {
-      if ((byte_read == UBX_NAV_PVT) || (byte_read == UBX_NAV_HPPOSLLH) || (byte_read == UBX_NAV_EOE))  {
+      if ((byte_read == UBX_NAV_PVT) || (byte_read == UBX_NAV_HPPOSLLH) ||
+          (byte_read == UBX_NAV_EOE))  {
         msg_ = static_cast<Msg>(byte_read);
         rx_buffer_[parser_pos_ - sizeof(UBX_HEADER_)] = byte_read;
         parser_pos_++;
@@ -257,7 +203,8 @@ bool Ublox::Parse() {
     /* Message length */
     } else if (parser_pos_ == 5) {
       msg_len_buffer_[1] = byte_read;
-      msg_len_ = static_cast<uint16_t>(msg_len_buffer_[1]) << 8 | msg_len_buffer_[0];
+      msg_len_ =
+        static_cast<uint16_t>(msg_len_buffer_[1]) << 8 | msg_len_buffer_[0];
       rx_buffer_[parser_pos_ - sizeof(UBX_HEADER_)] = byte_read;
       switch (msg_) {
         case UBX_NAV_PVT: {
@@ -295,20 +242,25 @@ bool Ublox::Parse() {
       parser_pos_++;
     } else {
       checksum_buffer_[1] = byte_read;
-      uint16_t received_checksum = static_cast<uint16_t>(checksum_buffer_[1]) << 8 | checksum_buffer_[0];
-      uint16_t computed_checksum = Checksum(rx_buffer_, msg_len_ + UBX_HEADER_LEN_);
+      uint16_t received_checksum =
+        static_cast<uint16_t>(checksum_buffer_[1]) << 8 | checksum_buffer_[0];
+      uint16_t computed_checksum =
+        Checksum(rx_buffer_, msg_len_ + UBX_HEADER_LEN_);
       if (computed_checksum == received_checksum) {
         switch (msg_) {
           case UBX_NAV_PVT: {
-            memcpy(&ubx_nav_pvt_, rx_buffer_ + UBX_PAYLOAD_OFFSET_, UBX_PVT_LEN_);
+            memcpy(&ubx_nav_pvt_, rx_buffer_ + UBX_PAYLOAD_OFFSET_,
+                   UBX_PVT_LEN_);
             break;
           }
           case UBX_NAV_HPPOSLLH: {
-            memcpy(&ubx_nav_hpposllh_, rx_buffer_ + UBX_PAYLOAD_OFFSET_, UBX_HPPOSLLH_LEN_);
+            memcpy(&ubx_nav_hpposllh_, rx_buffer_ + UBX_PAYLOAD_OFFSET_,
+                   UBX_HPPOSLLH_LEN_);
             break;
           }
           case UBX_NAV_EOE: {
-            memcpy(&ubx_nav_eoe_, rx_buffer_ + UBX_PAYLOAD_OFFSET_, UBX_EOE_LEN_);
+            memcpy(&ubx_nav_eoe_, rx_buffer_ + UBX_PAYLOAD_OFFSET_,
+                   UBX_EOE_LEN_);
             break;
           }
         }
@@ -327,11 +279,11 @@ uint16_t Ublox::Checksum(uint8_t *data, uint16_t len) {
     return 0;
   }
   uint8_t checksum_buffer[2] = {0, 0};
-	for (unsigned int i = 0; i < len; i++) {
-		checksum_buffer[0] += data[i];
-		checksum_buffer[1] += checksum_buffer[0];
-	}
+  for (unsigned int i = 0; i < len; i++) {
+    checksum_buffer[0] += data[i];
+    checksum_buffer[1] += checksum_buffer[0];
+  }
   return static_cast<uint16_t>(checksum_buffer_[1]) << 8 | checksum_buffer_[0];
 }
 
-}  // namespace sensors
+}  // namespace bfs

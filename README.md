@@ -47,14 +47,14 @@ Optionally, if it's available, the following packet should also be enabled to us
 You can also use u-center to configure the navigation solution and transmission rate, the baud rate for the serial interface, expected operation environment (i.e. stationary, airborne, etc), and any corrections (RTK or CORS network).
 
 ## Namespace
-This library is within the namespace *sensors*.
+This library is within the namespace *bfs*.
 
 ## Methods
 
 **Ublox(HardwareSerial&ast; bus)** Creates a Ublox object. This constructor is used for the serial communication interface and a pointer to the serial bus object is passed to the constructor.
 
 ```C++
-sensors::Ublox ubx(&Serial1);
+bfs::Ublox ubx(&Serial1);
 ```
 
 **bool Begin(uint32_t baud)** Establishes communication with the GNSS receiver. Returns true on successfully receiving data, otherwise, returns false.

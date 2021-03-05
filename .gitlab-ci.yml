@@ -6,6 +6,6 @@ Lint:
   tags:
     - bfs
   script: 
-    - cpplint.py --verbose=0 --filter=-whitespace,-line_length src/ublox/ublox.cc
-    - cpplint.py --verbose=0 include/ublox/ublox.h
+    - cpplint --verbose=0 src/ublox/ublox.cc
+    - cpplint --verbose=0 include/ublox/ublox.h
   
