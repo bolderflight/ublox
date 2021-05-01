@@ -26,69 +26,58 @@
 #include "ublox/ublox.h"
 #include "units/units.h"
 
-bfs::Ublox ubx(&Serial1);
+/* Ublox object */
+bfs::Ublox gnss;
+
+/* GNSS data */
+bfs::GnssData data;
 
 int main() {
+  /* Serial to display data */
   Serial.begin(115200);
   while(!Serial) {}
-  bool status = ubx.Begin(230400);
-  if (!status) {
-    Serial.println("Unable to communicate with uBlox receiver");
+  /* Config */
+  bfs::GnssConfig config = {
+    .bus = &Serial3,
+    .baud = 921600,
+    .sampling_period_ms = 200
+  };
+  /* Init GNSS */
+  if (!gnss.Init(config)) {
+    Serial.println("Error initializing communication with GNSS");
     while(1) {}
   }
   while (1) {
-    if (ubx.Read()) {
-      // Serial.print(ubx.tow_ms());
-      // Serial.print("\t");
-      // Serial.print(ubx.year());
-      // Serial.print("\t");
-      // Serial.print(ubx.month());
-      // Serial.print("\t");
-      // Serial.print(ubx.day());
-      // Serial.print("\t");
-      // Serial.print(ubx.hour());
-      // Serial.print("\t");
-      // Serial.print(ubx.min());
-      // Serial.print("\t");
-      // Serial.print(ubx.sec());
-      // Serial.print("\t");
-      // Serial.print(ubx.nano_sec());
-      // Serial.print("\t");
-      Serial.print(ubx.fix());
+    if (gnss.Read(&data)) {
+      Serial.print(data.new_data);
       Serial.print("\t");
-      Serial.print(ubx.num_satellites());
+      Serial.print(data.healthy);
       Serial.print("\t");
-      Serial.print(ubx.lat_rad());
+      Serial.print(static_cast<int8_t>(data.fix));
       Serial.print("\t");
-      Serial.print(ubx.lon_rad());
+      Serial.print(data.num_sats);
       Serial.print("\t");
-      Serial.print(ubx.alt_wgs84_m());
+      Serial.print(data.tow_s);
       Serial.print("\t");
-      // Serial.print(ubx.alt_msl_m());
-      // Serial.print("\t");
-      // Serial.print(ubx.north_velocity_mps());
-      // Serial.print("\t");
-      // Serial.print(ubx.east_velocity_mps());
-      // Serial.print("\t");
-      // Serial.print(ubx.down_velocity_mps());
-      // Serial.print("\t");
-      // Serial.print(ubx.ground_speed_mps());
-      // Serial.print("\t");
-      // Serial.print(bfs::rad2deg(ubx.ground_track_rad()));
-      // Serial.print("\t");
-      // Serial.print(ubx.time_accuracy_ns());
-      // Serial.print("\t");
-      // Serial.print(ubx.horizontal_accuracy_m());
-      // Serial.print("\t");
-      // Serial.print(ubx.vertical_accuracy_m());
-      // Serial.print("\t");
-      // Serial.print(ubx.velocity_accuracy_mps());
-      // Serial.print("\t");
-      // Serial.print(bfs::rad2deg(ubx.track_accuracy_rad()));
-      // Serial.print("\t");
-      // Serial.print(ubx.valid_time_and_date());
-      // Serial.print("\t");
-      // Serial.print(ubx.valid_gnss_fix());
+      Serial.print(data.week);
+      Serial.print("\t");
+      Serial.print(bfs::rad2deg(data.lat_rad));
+      Serial.print("\t");
+      Serial.print(bfs::rad2deg(data.lon_rad));
+      Serial.print("\t");
+      Serial.print(data.alt_wgs84_m);
+      Serial.print("\t");
+      Serial.print(data.ned_vel_mps(0));
+      Serial.print("\t");
+      Serial.print(data.ned_vel_mps(1));
+      Serial.print("\t");
+      Serial.print(data.ned_vel_mps(2));
+      Serial.print("\t");
+      Serial.print(data.horz_acc_m);
+      Serial.print("\t");
+      Serial.print(data.vert_acc_m);
+      Serial.print("\t");
+      Serial.print(data.vel_acc_mps);
       Serial.print("\n");
     }
   }

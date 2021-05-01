@@ -39,7 +39,7 @@ if (DEFINED MCU)
 	FetchContent_Declare(
 		gnss
 		GIT_REPOSITORY 	https://github.com/bolderflight/gnss.git
-		GIT_TAG v2.0.0
+		GIT_TAG v2.1.0
 	)
 	FetchContent_MakeAvailable(gnss)
 	# Add the library target
@@ -76,6 +76,7 @@ if (PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
 		target_link_libraries(uart_example
 			PRIVATE 
 				ublox
+				units
 		)
 		# Add hex and upload targets
 		include(${CMAKE_SOURCE_DIR}/cmake/flash_mcu.cmake)
