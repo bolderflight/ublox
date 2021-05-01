@@ -35,6 +35,13 @@ if (DEFINED MCU)
 		GIT_TAG v3.2.0
 	)
 	FetchContent_MakeAvailable(units)
+	# Fetch gnss
+	FetchContent_Declare(
+		gnss
+		GIT_REPOSITORY 	https://github.com/bolderflight/gnss.git
+		GIT_TAG v2.0.0
+	)
+	FetchContent_MakeAvailable(gnss)
 	# Add the library target
 	add_library(ublox
 		src/ublox/ublox.cc
@@ -46,6 +53,7 @@ if (DEFINED MCU)
 			core
 			eigen
 			units
+			gnss
 	)
 	# Setup include directories 
 	target_include_directories(ublox PUBLIC 
