@@ -18,21 +18,21 @@ if (DEFINED MCU)
 	FetchContent_Declare(
 		core
 		GIT_REPOSITORY 	https://github.com/bolderflight/core.git
-		GIT_TAG v2.0.4
+		GIT_TAG v2.0.5
 	)
 	FetchContent_MakeAvailable(core)
 	# Fetch eigen
 	FetchContent_Declare(
 		eigen
 		GIT_REPOSITORY 	https://github.com/bolderflight/eigen.git
-		GIT_TAG v1.0.0
+		GIT_TAG v2.0.0
 	)
 	FetchContent_MakeAvailable(eigen)
 	# Fetch units
 	FetchContent_Declare(
 		units
 		GIT_REPOSITORY 	https://github.com/bolderflight/units.git
-		GIT_TAG v3.1.0
+		GIT_TAG v3.2.0
 	)
 	FetchContent_MakeAvailable(units)
 	# Add the library target
