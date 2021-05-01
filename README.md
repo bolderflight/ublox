@@ -50,96 +50,32 @@ You can also use u-center to configure the navigation solution and transmission 
 This library is within the namespace *bfs*.
 
 ## Methods
+This driver conforms to the [GNSS interface](https://github.com/bolderflight/gnss); please refer to those documents for information on the *GnssConfig* and *GnssData* structs.
 
-**Ublox(HardwareSerial&ast; bus)** Creates a Ublox object. This constructor is used for the serial communication interface and a pointer to the serial bus object is passed to the constructor.
-
-```C++
-bfs::Ublox ubx(&Serial1);
-```
-
-**bool Begin(uint32_t baud)** Establishes communication with the GNSS receiver. Returns true on successfully receiving data, otherwise, returns false.
+**bool Init(const GnssConfig &ref)** Initializes communication with the GNSS receiver and returns true on successfully establishing communication.
 
 ```C++
-bool status = ubx.Begin(921600);
-```
-
-**bool Read()** Checks for GNSS packets and returns true on receiving data.
-
-```C++
-if (ubx.Read()) {
-  // good GNSS data received
+/* Ublox object */
+bfs::Ublox gnss;
+/* Config */
+bfs::GnssConfig config = {
+   .bus = &Serial3,
+   .baud = 921600,
+   .sampling_period_ms = 200
+};
+/* Init GNSS */
+if (!gnss.Init(config)) {
+   Serial.println("Error initializing communication with GNSS");
+   while(1) {}
 }
 ```
 
-### Data Retrieval
+**bool Read(GnssData &ast; const ptr)** Reads data from the GNSS receiver and passes the data into the *GnssData* struct. Returns true on successfully reading new data.
 
-The most recent valid packet is stored in the UBLOX object. Data fields can be retrieved using the following functions.
+```C++
+/* GNSS data */
+bfs::GnssData data;
+if (gnss.Read(&data)) {
 
-**uint32_t tow_ms()** GNSS time of week of the navigation solution, ms
-
-**uint16_t year()** UTC year
-
-**uint8_t month()** UTC month
-
-**uint8_t day()** UTC day
-
-**uint8_t hour()** UTC hour
-
-**uint8_t min()** UTC minute
-
-**uint8_t sec()** UTC second
-
-**int32_t nano_sec()** UTC nano second
-
-**FixType fix()** The current GNSS receiver fix. The following enum describes the fix type:
-
-| Fix Type | Enum Value |
-| --- | --- |
-| No fix | FIX_NONE |
-| Dead reckoning only | FIX_DEAD_RECKONING_ONLY |
-| 2D | FIX_2D |
-| 3D | FIX_3D |
-| GNSS and dead reckoning | FIX_GNSS_DEAD_RECKONING |
-| Time only | FIX_TIME_ONLY |
-
-Note that dead reckoning is only supported on dead-reckoning capable receivers.
-
-**uint8_t num_satellites()** The number of satellites used in the navigation solution
-
-**Eigen::Vector3d lla_wgs84_rad_m()** Latitude (rad), longitude (rad), and altitude above the WGS-84 ellipsoid (m) returned as an Eigen::Vector object
-
-**Eigen::Vector3d lla_msl_rad_m()** Latitude (rad), longitude (rad), and altitude above MSL (m) returned as an Eigen::Vector object
-
-**double lat_rad()** Latitude, rad
-
-**double lon_rad()** Longitude, rad
-
-**float alt_wgs84_m()** Altitude above the WGS-84 ellipsoid, m
-
-**float alt_msl_m()** Altitude above MSL, m
-
-**Eigen::Vector3f ned_velocity_mps()** North, east, down velocity returned as an Eigen::Vector object, m/s
-
-**float north_velocity_mps()** North  velocity, m/s
-
-**float east_velocity_mps()** East velocity, m/s
-
-**float down_velocity_mps()** Down velocity, m/s
-
-**float ground_speed_mps()** Ground speed, m/s
-
-**float ground_track_rad()** Ground track, rad
-
-**uint32_t time_accuracy_ns()** Accuracy of the time solution, ns
-
-**float horizontal_accuracy_m()** Horizontal position accuracy, m
-
-**float vertical_accuracy_m()** Vertical position accuracy, m
-
-**float velocity_accuracy_mps()** Velocity accuracy, m/s
-
-**float track_accuracy_rad()** Ground track accuracy, rad
-
-**bool valid_time_and_date()** Whether the date and time data is valid
-
-**bool valid_gnss_fix()** Whether the GNSS data is valid
+}
+```

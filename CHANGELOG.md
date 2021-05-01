@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.0.0
+- Updated to use *gnss* interface
+
 ## v2.0.0
 - Updated to namespace *bfs*
 - Updated to support units v3.1.0
