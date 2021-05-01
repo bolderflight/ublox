@@ -5,7 +5,7 @@ if (DEFINED MCU)
 endif()
 # Project information
 project(Ublox
-	VERSION 2.0.0
+	VERSION 3.0.0
 	DESCRIPTION "UBLOX sensor driver"
 	LANGUAGES CXX
 )
@@ -18,23 +18,30 @@ if (DEFINED MCU)
 	FetchContent_Declare(
 		core
 		GIT_REPOSITORY 	https://github.com/bolderflight/core.git
-		GIT_TAG v2.0.4
+		GIT_TAG v2.0.5
 	)
 	FetchContent_MakeAvailable(core)
 	# Fetch eigen
 	FetchContent_Declare(
 		eigen
 		GIT_REPOSITORY 	https://github.com/bolderflight/eigen.git
-		GIT_TAG v1.0.0
+		GIT_TAG v2.0.0
 	)
 	FetchContent_MakeAvailable(eigen)
 	# Fetch units
 	FetchContent_Declare(
 		units
 		GIT_REPOSITORY 	https://github.com/bolderflight/units.git
-		GIT_TAG v3.1.0
+		GIT_TAG v3.2.0
 	)
 	FetchContent_MakeAvailable(units)
+	# Fetch gnss
+	FetchContent_Declare(
+		gnss
+		GIT_REPOSITORY 	https://github.com/bolderflight/gnss.git
+		GIT_TAG v2.1.0
+	)
+	FetchContent_MakeAvailable(gnss)
 	# Add the library target
 	add_library(ublox
 		src/ublox/ublox.cc
@@ -46,6 +53,7 @@ if (DEFINED MCU)
 			core
 			eigen
 			units
+			gnss
 	)
 	# Setup include directories 
 	target_include_directories(ublox PUBLIC 
@@ -68,6 +76,7 @@ if (PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
 		target_link_libraries(uart_example
 			PRIVATE 
 				ublox
+				units
 		)
 		# Add hex and upload targets
 		include(${CMAKE_SOURCE_DIR}/cmake/flash_mcu.cmake)

@@ -29,60 +29,26 @@
 #include "Eigen/Core"
 #include "Eigen/Dense"
 #include "core/core.h"
+#include "gnss/gnss.h"
 
 namespace bfs {
 
 class Ublox {
  public:
-  enum FixType {
-    FIX_NONE = 0,
-    FIX_DEAD_RECKONING_ONLY = 1,
-    FIX_2D = 2,
-    FIX_3D = 3,
-    FIX_GNSS_DEAD_RECKONING = 4,
-    FIX_TIME_ONLY = 5
-  };
-  explicit Ublox(HardwareSerial* bus) : bus_(bus) {}
-  bool Begin(uint32_t baud);
-  bool Read();
-  inline uint32_t tow_ms() const {return tow_ms_;}
-  inline uint16_t year() const {return year_;}
-  inline uint8_t month() const {return month_;}
-  inline uint8_t day() const {return day_;}
-  inline uint8_t hour() const {return hour_;}
-  inline uint8_t min() const {return min_;}
-  inline uint8_t sec() const {return sec_;}
-  inline int32_t nano_sec() const {return nano_sec_;}
-  inline FixType fix() const {return fix_;}
-  inline uint8_t num_satellites() const {return num_satellites_;}
-  inline Eigen::Vector3d lla_msl_rad_m() const {return lla_msl_rad_m_;}
-  inline Eigen::Vector3d lla_wgs84_rad_m() const {return lla_wgs84_rad_m_;}
-  inline double lat_rad() const {return lla_wgs84_rad_m_(0);}
-  inline double lon_rad() const {return lla_wgs84_rad_m_(1);}
-  inline float alt_msl_m() const {return lla_msl_rad_m_(2);}
-  inline float alt_wgs84_m() const {return lla_wgs84_rad_m_(2);}
-  inline Eigen::Vector3f ned_velocity_mps() const {return ned_velocity_mps_;}
-  inline float north_velocity_mps() const {return ned_velocity_mps_(0);}
-  inline float east_velocity_mps() const {return ned_velocity_mps_(1);}
-  inline float down_velocity_mps() const {return ned_velocity_mps_(2);}
-  inline float ground_speed_mps() const {return ground_speed_mps_;}
-  inline float ground_track_rad() const {return ground_track_rad_;}
-  inline uint32_t time_accuracy_ns() const {return time_accuracy_ns_;}
-  inline float horizontal_accuracy_m() const {return horizontal_accuracy_m_;}
-  inline float vertical_accuracy_m() const {return vertical_accuracy_m_;}
-  inline float velocity_accuracy_mps() const {return velocity_accuracy_mps_;}
-  inline float track_accuracy_rad() const {return heading_accuracy_rad_;}
-  inline bool valid_time_and_date() const {return valid_time_and_date_;}
-  inline bool valid_gnss_fix() const {return valid_gnss_fix_;}
+  bool Init(const GnssConfig &ref);
+  bool Read(GnssData * const ptr);
 
  private:
-  /* Communication */
-  HardwareSerial* bus_;
+  /* Configuration */
+  GnssConfig config_;
   /* Configuration */
   static constexpr unsigned int TIMEOUT_MS_ = 5000;
   bool use_high_precision_ = false;
+  /* Health determination */
+  int16_t health_period_ms_;
+  elapsedMillis health_timer_ms_;
   /* Parsing */
-  const uint8_t UBX_HEADER_[2] = {0xB5, 0x62};
+  static constexpr uint8_t UBX_HEADER_[2] = {0xB5, 0x62};
   static constexpr uint8_t UBX_HEADER_LEN_ = 6;
   static constexpr uint8_t UBX_PAYLOAD_OFFSET_ = 4;
   static constexpr uint8_t UBX_NAV_CLASS_ = 0x01;
@@ -157,33 +123,13 @@ class Ublox {
   struct {
     uint32_t itow;
   } ubx_nav_eoe_;
-  /* Processed Data */
-  uint32_t tow_ms_;
-  uint16_t year_;
-  uint8_t month_;
-  uint8_t day_;
-  uint8_t hour_;
-  uint8_t min_;
-  uint8_t sec_;
-  int32_t nano_sec_;
-  FixType fix_;
-  uint8_t num_satellites_;
-  Eigen::Vector3d lla_wgs84_rad_m_;
-  Eigen::Vector3d lla_msl_rad_m_;
-  Eigen::Vector3f ned_velocity_mps_;
-  float ground_speed_mps_;
-  float ground_track_rad_;
-  uint32_t time_accuracy_ns_;
-  float horizontal_accuracy_m_;
-  float vertical_accuracy_m_;
-  float velocity_accuracy_mps_;
-  float heading_accuracy_rad_;
-  bool valid_time_and_date_;
-  bool valid_gnss_fix_;
   bool Epoch();
   bool Parse();
   uint16_t Checksum(uint8_t *data, uint16_t len);
 };
+
+/* Checking conformance to GNSS interface */
+static_assert(Gnss<Ublox>, "Ublox does not conform to Gnss interface");
 
 }  // namespace bfs
 
