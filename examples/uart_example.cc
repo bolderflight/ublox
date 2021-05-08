@@ -38,9 +38,9 @@ int main() {
   while(!Serial) {}
   /* Config */
   bfs::GnssConfig config = {
-    .bus = &Serial3,
+    .sampling_period_ms = 200,
     .baud = 921600,
-    .sampling_period_ms = 200
+    .bus = &Serial3
   };
   /* Init GNSS */
   if (!gnss.Init(config)) {
@@ -57,7 +57,7 @@ int main() {
       Serial.print("\t");
       Serial.print(data.num_sats);
       Serial.print("\t");
-      Serial.print(data.tow_s);
+      Serial.print(data.tow_ms);
       Serial.print("\t");
       Serial.print(data.week);
       Serial.print("\t");

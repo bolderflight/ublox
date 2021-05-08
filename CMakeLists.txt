@@ -5,7 +5,7 @@ if (DEFINED MCU)
 endif()
 # Project information
 project(Ublox
-	VERSION 3.0.0
+	VERSION 3.1.0
 	DESCRIPTION "UBLOX sensor driver"
 	LANGUAGES CXX
 )
@@ -39,7 +39,7 @@ if (DEFINED MCU)
 	FetchContent_Declare(
 		gnss
 		GIT_REPOSITORY 	https://github.com/bolderflight/gnss.git
-		GIT_TAG v2.1.0
+		GIT_TAG v2.2.0
 	)
 	FetchContent_MakeAvailable(gnss)
 	# Add the library target
