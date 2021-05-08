@@ -62,6 +62,10 @@ bool Ublox::Init(const GnssConfig &ref) {
   while (timer_ms < TIMEOUT_MS_) {
     if (Parse()) {
       switch (msg_) {
+        case UBX_NAV_DOP: {
+          ubx_nav_dop_parsed_ = true;
+          break;
+        }
         case UBX_NAV_PVT: {
           ubx_nav_pvt_parsed_ = true;
           break;
@@ -74,9 +78,10 @@ bool Ublox::Init(const GnssConfig &ref) {
           if (!start) {
             start = true;
           } else {
-            /* Need at least UBX-NAV-PVT */
-            init_status = ubx_nav_pvt_parsed_;
+            /* Need at least UBX-NAV-DOP and UBX-NAV-PVT */
+            init_status = ubx_nav_dop_parsed_ && ubx_nav_pvt_parsed_;
             /* Reset states */
+            ubx_nav_dop_parsed_ = false;
             ubx_nav_pvt_parsed_ = false;
             ubx_nav_hpposllh_parsed_ = false;
             read_status_ = false;
@@ -146,13 +151,22 @@ bool Ublox::Read(GnssData * const ptr) {
                                validity_confirmed && confirmed_date &&
                                confirmed_time;
     if (valid_time_and_date) {
-      ptr->tow_s = static_cast<double>(ubx_nav_pvt_.itow) / 1e3;
+      ptr->tow_ms = ubx_nav_pvt_.itow;
       ptr->week = GnssWeek(ubx_nav_pvt_.year, ubx_nav_pvt_.month,
                            ubx_nav_pvt_.day);
     } else {
-      ptr->tow_s = 0.0;
+      ptr->tow_ms = 0;
       ptr->week = 0;
     }
+    /* HDOP, VDOP */
+    ptr->hdop = static_cast<float>(ubx_nav_dop_.hdop) * 0.01f;
+    ptr->vdop = static_cast<float>(ubx_nav_dop_.vdop) * 0.01f;
+    /* Ground track and ground speed */
+    ptr->spd_mps = static_cast<float>(ubx_nav_pvt_.gspeed) / 1000.0f;
+    ptr->track_rad = deg2rad(static_cast<float>(ubx_nav_pvt_.headmot) /
+                             100000.0f);
+    ptr->track_acc_rad = deg2rad(static_cast<float>(ubx_nav_pvt_.headacc) /
+                                 100000.0f);
     /* Velocity */
     ptr->ned_vel_mps(0) = static_cast<float>(ubx_nav_pvt_.veln) / 1000.0f;
     ptr->ned_vel_mps(1) = static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f;
@@ -165,6 +179,9 @@ bool Ublox::Read(GnssData * const ptr) {
         ptr->alt_wgs84_m = (static_cast<float>(ubx_nav_hpposllh_.height) +
                             static_cast<float>(ubx_nav_hpposllh_.heighthp) *
                             0.1f) * 0.001f;
+        ptr->alt_msl_m = (static_cast<float>(ubx_nav_hpposllh_.hmsl) +
+                          static_cast<float>(ubx_nav_hpposllh_.hmslhp) *
+                          0.1f) * 0.001f;
         ptr->horz_acc_m = static_cast<float>(ubx_nav_hpposllh_.hacc) /
                           10000.0f;
         ptr->vert_acc_m = static_cast<float>(ubx_nav_hpposllh_.vacc) /
@@ -177,6 +194,7 @@ bool Ublox::Read(GnssData * const ptr) {
                       1e-7);
       } else {
         ptr->alt_wgs84_m = static_cast<double>(ubx_nav_pvt_.height) * 0.001f;
+        ptr->alt_msl_m = static_cast<double>(ubx_nav_pvt_.hmsl) * 0.001f;
         ptr->horz_acc_m = static_cast<float>(ubx_nav_hpposllh_.hacc) / 1000.0f;
         ptr->vert_acc_m = static_cast<float>(ubx_nav_hpposllh_.vacc) / 1000.0f;
         ptr->lat_rad = deg2rad(static_cast<double>(ubx_nav_pvt_.lat) * 1e-7);
@@ -184,6 +202,7 @@ bool Ublox::Read(GnssData * const ptr) {
       }
     } else {
       ptr->alt_wgs84_m = 0.0f;
+      ptr->alt_msl_m = 0.0f;
       ptr->horz_acc_m = 0.0f;
       ptr->vert_acc_m = 0.0f;
       ptr->lat_rad = 0.0;
@@ -195,6 +214,10 @@ bool Ublox::Read(GnssData * const ptr) {
 bool Ublox::Epoch() {
   if (Parse()) {
     switch (msg_) {
+      case UBX_NAV_DOP: {
+        ubx_nav_dop_parsed_ = true;
+        break;
+      }
       case UBX_NAV_PVT: {
         ubx_nav_pvt_parsed_ = true;
         break;
@@ -206,10 +229,12 @@ bool Ublox::Epoch() {
       case UBX_NAV_EOE: {
         read_status_ = false;
         if (use_high_precision_) {
-          read_status_ = ubx_nav_pvt_parsed_ && ubx_nav_hpposllh_parsed_;
+          read_status_ = ubx_nav_dop_parsed_ && ubx_nav_pvt_parsed_ &&
+                         ubx_nav_hpposllh_parsed_;
         } else {
-          read_status_ = ubx_nav_pvt_parsed_;
+          read_status_ = ubx_nav_dop_parsed_ && ubx_nav_pvt_parsed_;
         }
+        ubx_nav_dop_parsed_ = false;
         ubx_nav_pvt_parsed_ = false;
         ubx_nav_hpposllh_parsed_ = false;
         return read_status_;
@@ -238,7 +263,9 @@ bool Ublox::Parse() {
       }
     /* Message ID */
     } else if (parser_pos_ == 3) {
-      if ((byte_read == UBX_NAV_PVT) || (byte_read == UBX_NAV_HPPOSLLH) ||
+      if ((byte_read == UBX_NAV_DOP) ||
+          (byte_read == UBX_NAV_PVT) ||
+          (byte_read == UBX_NAV_HPPOSLLH) ||
           (byte_read == UBX_NAV_EOE))  {
         msg_ = static_cast<Msg>(byte_read);
         rx_buffer_[parser_pos_ - sizeof(UBX_HEADER_)] = byte_read;
@@ -258,6 +285,14 @@ bool Ublox::Parse() {
         static_cast<uint16_t>(msg_len_buffer_[1]) << 8 | msg_len_buffer_[0];
       rx_buffer_[parser_pos_ - sizeof(UBX_HEADER_)] = byte_read;
       switch (msg_) {
+        case UBX_NAV_DOP: {
+          if (msg_len_ == UBX_DOP_LEN_) {
+            parser_pos_++;
+          } else {
+            parser_pos_ = 0;
+          }
+          break;
+        }
         case UBX_NAV_PVT: {
           if (msg_len_ == UBX_PVT_LEN_) {
             parser_pos_++;
@@ -299,6 +334,11 @@ bool Ublox::Parse() {
         Checksum(rx_buffer_, msg_len_ + UBX_HEADER_LEN_);
       if (computed_checksum == received_checksum) {
         switch (msg_) {
+          case UBX_NAV_DOP: {
+            memcpy(&ubx_nav_dop_, rx_buffer_ + UBX_PAYLOAD_OFFSET_,
+                   UBX_DOP_LEN_);
+            break;
+          }
           case UBX_NAV_PVT: {
             memcpy(&ubx_nav_pvt_, rx_buffer_ + UBX_PAYLOAD_OFFSET_,
                    UBX_PVT_LEN_);

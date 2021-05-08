@@ -52,6 +52,7 @@ class Ublox {
   static constexpr uint8_t UBX_HEADER_LEN_ = 6;
   static constexpr uint8_t UBX_PAYLOAD_OFFSET_ = 4;
   static constexpr uint8_t UBX_NAV_CLASS_ = 0x01;
+  static constexpr uint8_t UBX_DOP_LEN_ = 18;
   static constexpr uint8_t UBX_PVT_LEN_ = 92;
   static constexpr uint8_t UBX_HPPOSLLH_LEN_ = 36;
   static constexpr uint8_t UBX_EOE_LEN_ = 4;
@@ -60,15 +61,27 @@ class Ublox {
   uint16_t msg_len_;
   uint8_t checksum_buffer_[2];
   uint8_t rx_buffer_[96];
+  bool ubx_nav_dop_parsed_ = false;
   bool ubx_nav_pvt_parsed_ = false;
   bool ubx_nav_hpposllh_parsed_ = false;
   bool read_status_ = false;
   /* Data Packets */
   enum Msg : uint8_t {
+    UBX_NAV_DOP = 0x04,
     UBX_NAV_PVT = 0x07,
     UBX_NAV_HPPOSLLH = 0x14,
     UBX_NAV_EOE = 0x61
   } msg_;
+  struct {
+    uint32_t itow;
+    uint16_t gdop;
+    uint16_t pdop;
+    uint16_t tdop;
+    uint16_t vdop;
+    uint16_t hdop;
+    uint16_t ndop;
+    uint16_t edop;
+  } ubx_nav_dop_;
   struct {
     uint32_t itow;
     uint16_t year;
