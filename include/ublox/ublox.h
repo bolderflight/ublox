@@ -26,8 +26,6 @@
 #ifndef INCLUDE_UBLOX_UBLOX_H_
 #define INCLUDE_UBLOX_UBLOX_H_
 
-#include "Eigen/Core"
-#include "Eigen/Dense"
 #include "core/core.h"
 #include "gnss/gnss.h"
 

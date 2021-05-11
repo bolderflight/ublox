@@ -67,11 +67,11 @@ int main() {
       Serial.print("\t");
       Serial.print(data.alt_wgs84_m);
       Serial.print("\t");
-      Serial.print(data.ned_vel_mps(0));
+      Serial.print(data.ned_vel_mps[0]);
       Serial.print("\t");
-      Serial.print(data.ned_vel_mps(1));
+      Serial.print(data.ned_vel_mps[1]);
       Serial.print("\t");
-      Serial.print(data.ned_vel_mps(2));
+      Serial.print(data.ned_vel_mps[2]);
       Serial.print("\t");
       Serial.print(data.horz_acc_m);
       Serial.print("\t");
