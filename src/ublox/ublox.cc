@@ -24,8 +24,6 @@
 */
 
 #include "ublox/ublox.h"
-#include "Eigen/Core"
-#include "Eigen/Dense"
 #include "core/core.h"
 #include "units/units.h"
 #include "gnss/gnss.h"
@@ -115,29 +113,29 @@ bool Ublox::Read(GnssData * const ptr) {
     if (valid_fix) {
       switch (ubx_nav_pvt_.fix) {
         case 2: {
-          ptr->fix = GnssFix::FIX_2D;
+          ptr->fix = GNSS_FIX_2D;
           break;
         }
         case 3: {
-          ptr->fix = GnssFix::FIX_3D;
+          ptr->fix = GNSS_FIX_3D;
           if (dgnss) {
-            ptr->fix = GnssFix::FIX_DGNSS;
+            ptr->fix = GNSS_FIX_DGNSS;
           }
           if (rtk == 1) {
-            ptr->fix = GnssFix::FIX_RTK_FLOAT;
+            ptr->fix = GNSS_FIX_RTK_FLOAT;
           }
           if (rtk == 2) {
-            ptr->fix == GnssFix::FIX_RTK_FIXED;
+            ptr->fix == GNSS_FIX_RTK_FIXED;
           }
           break;
         }
         default: {
-          ptr->fix = GnssFix::FIX_NONE;
+          ptr->fix = GNSS_FIX_NONE;
           break;
         }
       }
     } else {
-      ptr->fix = GnssFix::FIX_NONE;
+      ptr->fix = GNSS_FIX_NONE;
     }
     ptr->num_sats = ubx_nav_pvt_.numsv;
     /* Date and time */
@@ -168,9 +166,9 @@ bool Ublox::Read(GnssData * const ptr) {
     ptr->track_acc_rad = deg2rad(static_cast<float>(ubx_nav_pvt_.headacc) /
                                  100000.0f);
     /* Velocity */
-    ptr->ned_vel_mps(0) = static_cast<float>(ubx_nav_pvt_.veln) / 1000.0f;
-    ptr->ned_vel_mps(1) = static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f;
-    ptr->ned_vel_mps(2) = static_cast<float>(ubx_nav_pvt_.veld) / 1000.0f;
+    ptr->ned_vel_mps[0] = static_cast<float>(ubx_nav_pvt_.veln) / 1000.0f;
+    ptr->ned_vel_mps[1] = static_cast<float>(ubx_nav_pvt_.vele) / 1000.0f;
+    ptr->ned_vel_mps[2] = static_cast<float>(ubx_nav_pvt_.veld) / 1000.0f;
     ptr->vel_acc_mps = static_cast<float>(ubx_nav_pvt_.sacc) / 1000.0f;
     /* Position */
     bool invalid_llh = ubx_nav_pvt_.flags3 & 0x01;

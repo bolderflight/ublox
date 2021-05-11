@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.2.0
+- Updated for *gnss* v2.4.0
+
 ## v3.1.0
 - Updated for *gnss* v2.2.0
 
