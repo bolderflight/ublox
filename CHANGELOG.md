@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.0.0
+- Merging ublox and ublox-arduino
+- Using mcu_support repo for CMake builds
+
 ## v2.0.0
 - Updated to match our [Ublox](https://github.com/bolderflight/ublox-arduino) library for flight software
 - Updated license to MIT

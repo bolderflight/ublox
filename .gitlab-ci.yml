@@ -6,6 +6,6 @@ Lint:
   tags:
     - bfs
   script: 
-    - cpplint --verbose=0 src/ublox/ublox.cc
-    - cpplint --verbose=0 include/ublox/ublox.h
+    - cpplint --verbose=0 src/ublox.cpp
+    - cpplint --verbose=0 src/ublox.h
   
