@@ -23,10 +23,17 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef INCLUDE_UBLOX_UBLOX_H_
-#define INCLUDE_UBLOX_UBLOX_H_
+#ifndef SRC_UBLOX_H_
+#define SRC_UBLOX_H_
 
+#if defined(ARDUINO)
 #include "Arduino.h"
+#else
+#include "core/core.h"
+#endif
+#include <cstddef>
+#include <cstdint>
+#include "units.h"  // NOLINT
 
 class Ublox {
  public:
@@ -178,4 +185,4 @@ class Ublox {
   uint16_t Checksum(uint8_t *data, uint16_t len);
 };
 
-#endif  // INCLUDE_UBLOX_UBLOX_H_
+#endif  // SRC_UBLOX_H_

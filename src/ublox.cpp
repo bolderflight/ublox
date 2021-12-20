@@ -23,8 +23,15 @@
 * IN THE SOFTWARE.
 */
 
+#include "ublox.h"  // NOLINT
+#if defined(ARDUINO)
 #include "Arduino.h"
-#include "ublox.h"
+#else
+#include "core/core.h"
+#endif
+#include <cstddef>
+#include <cstdint>
+#include "units.h"  // NOLINT
 
 Ublox::Ublox(HardwareSerial* bus) {
   bus_ = bus;
