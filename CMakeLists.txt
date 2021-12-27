@@ -13,7 +13,7 @@ if (DEFINED MCU)
   # Project information
   project(Ublox
     VERSION 4.0.0
-    DESCRIPTION "UBLOX sensor driver"
+    DESCRIPTION "uBlox UBX sensor driver"
     LANGUAGES CXX
   )
   # Grab the processor and set up definitions and compile options
@@ -34,18 +34,22 @@ if (DEFINED MCU)
   )
   FetchContent_MakeAvailable(units)
   # Add the library target
-  add_library(ublox
-    src/ublox.cpp
-    src/ublox.h
+  add_library(ubx
+    src/ubx.cpp
+    src/ubx.h
+    src/ubx_defs.h
+    src/ubx_nav.h
+    src/ubx_cfg.h
+    src/ubx_ack.h
   )
   # Link libraries
-  target_link_libraries(ublox
+  target_link_libraries(ubx
     PUBLIC
       core
       units
   )
   # Setup include directories 
-  target_include_directories(ublox PUBLIC 
+  target_include_directories(ubx PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
   )
@@ -62,7 +66,7 @@ if (DEFINED MCU)
     # Link libraries to the example target
     target_link_libraries(ublox_example
       PRIVATE 
-        ublox
+        ubx
     )
     # Add hex and upload targets
     include(${mcu_support_SOURCE_DIR}/cmake/flash_mcu.cmake)

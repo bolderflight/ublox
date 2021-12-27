@@ -23,7 +23,7 @@
 * IN THE SOFTWARE.
 */
 
-#include "ublox.h"
+#include "ubx.h"
 
 // /* Ublox object */
 // bfs::Ublox gnss;
@@ -31,10 +31,30 @@
 // /* GNSS data */
 // bfs::GnssData data;
 
+bfs::Ubx gnss(&Serial3);
+
 int main() {
-  // /* Serial to display data */
-  // Serial.begin(115200);
-  // while(!Serial) {}
+  /* Serial to display data */
+  Serial.begin(115200);
+  while(!Serial) {}
+  Serial.println("Starting Test v1");
+  bool result = gnss.Begin(921600);
+  Serial.println(result);
+  // bfs::U1 val1;
+  // unsigned long t1, t2;
+  // bool result;
+  // // t1 = micros();
+  // // val = 1000;
+  // result = gnss.SetCfgVal<bfs::U2>(0x30210001, 100);
+  // // t2 = micros();
+  // // Serial.println(result);
+  // // Serial.println(t2 - t1);
+  // t1 = micros();
+  // result = gnss.GetCfgVal<bfs::U1>(0x20910066, &val1);
+  // t2 = micros();
+  // Serial.println(result);
+  // Serial.println(t2 - t1);
+  // Serial.println(val1);
   // /* Config */
   // bfs::GnssConfig config = {
   //   .sampling_period_ms = 200,
