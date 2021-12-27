@@ -43,101 +43,101 @@ constexpr uint8_t Ubx::UBX_HEADER_[];
 
 bool Ubx::Begin(const uint32_t baud) {
   bus_->begin(baud);
-  /* Disable NMEA outputs */
-  if (!SetCfgVal<U1>(UBX_CFG_UART1OUTPROT_NMEA_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_UART2OUTPROT_NMEA_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_USBOUTPROT_NMEA_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_I2COUTPROT_NMEA_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_SPIOUTPROT_NMEA_, 0)) {return false;}
-  /* Disable NMEA inputs */
-  if (!SetCfgVal<U1>(UBX_CFG_UART1INPROT_NMEA_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_UART2INPROT_NMEA_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_USBINPROT_NMEA_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_I2CINPROT_NMEA_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_SPIINPROT_NMEA_, 0)) {return false;}
-  /* Disable RTCM outputs */
-  if (!SetCfgVal<U1>(UBX_CFG_UART1OUTPROT_RTCM3X_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_UART2OUTPROT_RTCM3X_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_USBOUTPROT_RTCM3X_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_I2COUTPROT_RTCM3X_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_SPIOUTPROT_RTCM3X_, 0)) {return false;}
-  /* Disable RTCM inputs */
-  if (!SetCfgVal<U1>(UBX_CFG_UART1INPROT_RTCM3X_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_UART2INPROT_RTCM3X_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_USBINPROT_RTCM3X_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_I2CINPROT_RTCM3X_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_SPIINPROT_RTCM3X_, 0)) {return false;}
-  /* Enable UBX output on UART1 */
-  if (!SetCfgVal<U1>(UBX_CFG_UART1OUTPROT_UBX_, 1)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_UART2OUTPROT_UBX_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_USBOUTPROT_UBX_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_I2COUTPROT_UBX_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_SPIOUTPROT_UBX_, 0)) {return false;}
-  /* Enable UBX input on UART1 */
-  if (!SetCfgVal<U1>(UBX_CFG_UART1INPROT_UBX_, 1)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_UART2INPROT_UBX_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_USBINPROT_UBX_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_I2CINPROT_UBX_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_SPIINPROT_UBX_, 0)) {return false;}
-  /* Select UBX Messages */
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_LOG_INFO_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_COMMS_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_HW2_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_HW3_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_HW_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_IO_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_MSGPP_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_RF_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_RXBUF_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_RXR_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_SPAN_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_TXBUF_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_CLOCK_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_DOP_UART1_, 1)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_EOE_UART1_, 1)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_GEOFENCE_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_HPPOSECEF_UART1_, 1)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_HPPOSLLH_UART1_, 1)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_ODO_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_ORB_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_POSECEF_UART1_, 1)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_POSLLH_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_PVT_UART1_, 1)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_RELPOSNED_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_SAT_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_SBAS_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_SIG_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_SLAS_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_STATUS_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_SVIN_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEBDS_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEGAL_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEGLO_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEGPS_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMELS_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEQZSS_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEUTC_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_VELECEF_UART1_, 1)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_VELNED_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_RXM_MEASX_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_RXM_RAWX_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_RXM_RLM_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_RXM_RTCM_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_RXM_SFRBX_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_TIM_TM2_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_TIM_TP_UART1_, 0)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_TIM_VRFY_UART1_, 0)) {return false;}
-  /* Set output rate tp 10 Hz */
-  if (!SetCfgVal<U2>(UBX_CFG_RATE_MEAS_, 100)) {return false;}
-  /* Standard precision navigation conﬁguration */
-  if (!SetCfgVal<U1>(UBX_CFG_NAVSPG_FIXMODE_,
-                     UBX_CFG_NAVSPG_FIXMODE_3D_ONLY_)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_NAVSPG_INIFIX3D_, 1)) {return false;}
-  if (!SetCfgVal<U1>(UBX_CFG_NAVSPG_DYNMODEL_,
-                     UBX_CFG_NAVSPG_DYNMODEL_AIR4_)) {return false;}
-  /* CFG-NAVHPG High precision navigation conﬁguration */
-  if (!SetCfgVal<U1>(UBX_CFG_NAVHPG_DGNSSMODE_,
-                     UBX_CFG_NAVHPG_DGNSSMODE_RTK_FIXED_)) {return false;}
+  // /* Disable NMEA outputs */
+  // if (!SetCfgVal<U1>(UBX_CFG_UART1OUTPROT_NMEA_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_UART2OUTPROT_NMEA_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_USBOUTPROT_NMEA_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_I2COUTPROT_NMEA_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_SPIOUTPROT_NMEA_, 0)) {return false;}
+  // /* Disable NMEA inputs */
+  // if (!SetCfgVal<U1>(UBX_CFG_UART1INPROT_NMEA_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_UART2INPROT_NMEA_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_USBINPROT_NMEA_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_I2CINPROT_NMEA_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_SPIINPROT_NMEA_, 0)) {return false;}
+  // /* Disable RTCM outputs */
+  // if (!SetCfgVal<U1>(UBX_CFG_UART1OUTPROT_RTCM3X_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_UART2OUTPROT_RTCM3X_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_USBOUTPROT_RTCM3X_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_I2COUTPROT_RTCM3X_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_SPIOUTPROT_RTCM3X_, 0)) {return false;}
+  // /* Disable RTCM inputs */
+  // if (!SetCfgVal<U1>(UBX_CFG_UART1INPROT_RTCM3X_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_UART2INPROT_RTCM3X_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_USBINPROT_RTCM3X_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_I2CINPROT_RTCM3X_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_SPIINPROT_RTCM3X_, 0)) {return false;}
+  // /* Enable UBX output on UART1 */
+  // if (!SetCfgVal<U1>(UBX_CFG_UART1OUTPROT_UBX_, 1)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_UART2OUTPROT_UBX_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_USBOUTPROT_UBX_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_I2COUTPROT_UBX_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_SPIOUTPROT_UBX_, 0)) {return false;}
+  // /* Enable UBX input on UART1 */
+  // if (!SetCfgVal<U1>(UBX_CFG_UART1INPROT_UBX_, 1)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_UART2INPROT_UBX_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_USBINPROT_UBX_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_I2CINPROT_UBX_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_SPIINPROT_UBX_, 0)) {return false;}
+  // /* Select UBX Messages */
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_LOG_INFO_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_COMMS_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_HW2_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_HW3_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_HW_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_IO_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_MSGPP_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_RF_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_RXBUF_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_RXR_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_SPAN_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_MON_TXBUF_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_CLOCK_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_DOP_UART1_, 1)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_EOE_UART1_, 1)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_GEOFENCE_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_HPPOSECEF_UART1_, 1)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_HPPOSLLH_UART1_, 1)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_ODO_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_ORB_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_POSECEF_UART1_, 1)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_POSLLH_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_PVT_UART1_, 1)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_RELPOSNED_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_SAT_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_SBAS_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_SIG_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_SLAS_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_STATUS_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_SVIN_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEBDS_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEGAL_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEGLO_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEGPS_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMELS_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEQZSS_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_TIMEUTC_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_VELECEF_UART1_, 1)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_NAV_VELNED_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_RXM_MEASX_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_RXM_RAWX_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_RXM_RLM_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_RXM_RTCM_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_RXM_SFRBX_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_TIM_TM2_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_TIM_TP_UART1_, 0)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_MSGOUT_UBX_TIM_VRFY_UART1_, 0)) {return false;}
+  // /* Set output rate tp 10 Hz */
+  // if (!SetCfgVal<U2>(UBX_CFG_RATE_MEAS_, 100)) {return false;}
+  // /* Standard precision navigation conﬁguration */
+  // if (!SetCfgVal<U1>(UBX_CFG_NAVSPG_FIXMODE_,
+  //                    UBX_CFG_NAVSPG_FIXMODE_3D_ONLY_)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_NAVSPG_INIFIX3D_, 1)) {return false;}
+  // if (!SetCfgVal<U1>(UBX_CFG_NAVSPG_DYNMODEL_,
+  //                    UBX_CFG_NAVSPG_DYNMODEL_AIR4_)) {return false;}
+  // /* CFG-NAVHPG High precision navigation conﬁguration */
+  // if (!SetCfgVal<U1>(UBX_CFG_NAVHPG_DGNSSMODE_,
+  //                    UBX_CFG_NAVHPG_DGNSSMODE_RTK_FIXED_)) {return false;}
   return true;
 }
 bool Ubx::ParseMsg(const uint8_t c, UbxMsg * const msg) {

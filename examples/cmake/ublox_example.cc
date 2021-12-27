@@ -38,7 +38,7 @@ int main() {
   Serial.begin(115200);
   while(!Serial) {}
   Serial.println("Starting Test v1");
-  bool result = gnss.Begin(921600);
+  bool result = gnss.Begin(9600);
   Serial.println(result);
   // bfs::U1 val1;
   // unsigned long t1, t2;

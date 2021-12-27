@@ -75,6 +75,16 @@ class Ubx {
   /* UBX checksum calculation */
   uint16_t Checksum(uint8_t const * const data, const uint16_t len,
                     bool reset_states);
+  /* Legacy Configuration */
+  template<typename T>
+  bool SendLegacyCfg(const T &ref) {
+    txmsg_.cls = ref.cls;
+    txmsg_.id = ref.id;
+    txmsg_.len = ref.len;
+    memcpy(txmsg_.payload, ref.payload, ref.len);
+    SendMsg(txmsg_);
+  }
+  /* v9 Configuration */
   /* Set a config value in RAM */
   template<typename T>
   bool SetCfgVal(const uint32_t key, const T val) {
