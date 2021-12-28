@@ -5,7 +5,19 @@ Lint:
   stage: lint
   tags:
     - bfs
-  script: 
-    - cpplint --verbose=0 src/ublox.cpp
-    - cpplint --verbose=0 src/ublox.h
-  
+  script:
+    - cpplint --verbose=0 src/ubx.cpp
+    - cpplint --verbose=0 src/ubx.h
+    - cpplint --verbose=0 src/ubx_ack.h
+    - cpplint --verbose=0 src/ubx_cfg.h
+    - cpplint --verbose=0 src/ubx_defs.h
+    - cpplint --verbose=0 src/ubx_inf.h
+    - cpplint --verbose=0 src/ubx_keys.h
+    - cpplint --verbose=0 src/ubx_log.h
+    - cpplint --verbose=0 src/ubx_mga.h
+    - cpplint --verbose=0 src/ubx_mon.h
+    - cpplint --verbose=0 src/ubx_nav.h
+    - cpplint --verbose=0 src/ubx_rxm.h
+    - cpplint --verbose=0 src/ubx_sec.h
+    - cpplint --verbose=0 src/ubx_time.h
+    - cpplint --verbose=0 src/ubx_upd.h
