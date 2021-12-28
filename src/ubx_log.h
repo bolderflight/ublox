@@ -23,40 +23,26 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef SRC_UBX_ACK_H_
-#define SRC_UBX_ACK_H_
+#ifndef SRC_UBX_LOG_H_
+#define SRC_UBX_LOG_H_
 
 #include <cstdint>
 #include <cstddef>
 #include "ubx_defs.h"  // NOLINT
 
 namespace bfs {
-/*
-* Defs for UBX-ACK messages
-*/
-/* UBX-ACK IDs */
-static constexpr uint8_t UBX_ACK_ACK_ID_ = 0x01;
-static constexpr uint8_t UBX_ACK_NAK_ID_ = 0x00;
-/* UBX-ACK messages */
-struct UbxAckAck {
-  static constexpr uint8_t cls = UBX_ACK_CLS_;
-  static constexpr uint8_t id = UBX_ACK_ACK_ID_;
-  static constexpr uint16_t len = 2;
-  struct {
-    U1 cls_id;
-    U1 msg_id;
-  } payload;
-};
-struct UbxAckNak {
-  static constexpr uint8_t cls = UBX_ACK_CLS_;
-  static constexpr uint8_t id = UBX_ACK_NAK_ID_;
-  static constexpr uint16_t len = 2;
-  struct {
-    U1 cls_id;
-    U1 msg_id;
-  } payload;
-};
+
+/* UBX-LOG IDs */
+static constexpr uint8_t UBX_LOG_CREATE_ID_ = 0x07;
+static constexpr uint8_t UBX_LOG_ERASE_ID_ = 0x03;
+static constexpr uint8_t UBX_LOG_FINDTIME_ID_ = 0x0e;
+static constexpr uint8_t UBX_LOG_INFO_ID_ = 0x08;
+static constexpr uint8_t UBX_LOG_RETRIEVE_ID_ = 0x09;
+static constexpr uint8_t UBX_LOG_RETRIEVEPOS_ID_ = 0x0b;
+static constexpr uint8_t UBX_LOG_RETRIEVEPOSEXTRA_ID_ = 0x0f;
+static constexpr uint8_t UBX_LOG_RETRIEVESTRING_ID_ = 0x0d;
+static constexpr uint8_t UBX_LOG_STRING_ID_ = 0x04;
 
 }  // namespace bfs
 
-#endif  // SRC_UBX_ACK_H_
+#endif  // SRC_UBX_LOG_H_

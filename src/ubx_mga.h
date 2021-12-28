@@ -23,40 +23,25 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef SRC_UBX_ACK_H_
-#define SRC_UBX_ACK_H_
+#ifndef SRC_UBX_MGA_H_
+#define SRC_UBX_MGA_H_
 
 #include <cstdint>
 #include <cstddef>
 #include "ubx_defs.h"  // NOLINT
 
 namespace bfs {
-/*
-* Defs for UBX-ACK messages
-*/
-/* UBX-ACK IDs */
-static constexpr uint8_t UBX_ACK_ACK_ID_ = 0x01;
-static constexpr uint8_t UBX_ACK_NAK_ID_ = 0x00;
-/* UBX-ACK messages */
-struct UbxAckAck {
-  static constexpr uint8_t cls = UBX_ACK_CLS_;
-  static constexpr uint8_t id = UBX_ACK_ACK_ID_;
-  static constexpr uint16_t len = 2;
-  struct {
-    U1 cls_id;
-    U1 msg_id;
-  } payload;
-};
-struct UbxAckNak {
-  static constexpr uint8_t cls = UBX_ACK_CLS_;
-  static constexpr uint8_t id = UBX_ACK_NAK_ID_;
-  static constexpr uint16_t len = 2;
-  struct {
-    U1 cls_id;
-    U1 msg_id;
-  } payload;
-};
+
+/* UBX-MGA IDs */
+static constexpr uint8_t UBX_MGA_ACK_ID_ = 0x60;
+static constexpr uint8_t UBX_MGA_BDS_ID_ = 0x03;
+static constexpr uint8_t UBX_MGA_DBD_ID_ = 0x80;
+static constexpr uint8_t UBX_MGA_GAL_ID_ = 0x02;
+static constexpr uint8_t UBX_MGA_GLO_ID_ = 0x06;
+static constexpr uint8_t UBX_MGA_GPS_ID_ = 0x00;
+static constexpr uint8_t UBX_MGA_INI_ID_ = 0x40;
+static constexpr uint8_t UBX_MGA_QZSS_ID_ = 0x05;
 
 }  // namespace bfs
 
-#endif  // SRC_UBX_ACK_H_
+#endif  // SRC_UBX_MGA_H_

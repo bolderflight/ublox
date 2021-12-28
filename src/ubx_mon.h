@@ -23,40 +23,31 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef SRC_UBX_ACK_H_
-#define SRC_UBX_ACK_H_
+#ifndef SRC_UBX_MON_H_
+#define SRC_UBX_MON_H_
 
 #include <cstdint>
 #include <cstddef>
 #include "ubx_defs.h"  // NOLINT
 
 namespace bfs {
-/*
-* Defs for UBX-ACK messages
-*/
-/* UBX-ACK IDs */
-static constexpr uint8_t UBX_ACK_ACK_ID_ = 0x01;
-static constexpr uint8_t UBX_ACK_NAK_ID_ = 0x00;
-/* UBX-ACK messages */
-struct UbxAckAck {
-  static constexpr uint8_t cls = UBX_ACK_CLS_;
-  static constexpr uint8_t id = UBX_ACK_ACK_ID_;
-  static constexpr uint16_t len = 2;
-  struct {
-    U1 cls_id;
-    U1 msg_id;
-  } payload;
-};
-struct UbxAckNak {
-  static constexpr uint8_t cls = UBX_ACK_CLS_;
-  static constexpr uint8_t id = UBX_ACK_NAK_ID_;
-  static constexpr uint16_t len = 2;
-  struct {
-    U1 cls_id;
-    U1 msg_id;
-  } payload;
-};
+
+/* UBX-MON IDs */
+static constexpr uint8_t UBX_MON_COMMS_ID_ = 0x36;
+static constexpr uint8_t UBX_MON_GNSS_ID_ = 0x28;
+static constexpr uint8_t UBX_MON_HW_ID_ = 0x09;
+static constexpr uint8_t UBX_MON_HW2_ID_ = 0x0b;
+static constexpr uint8_t UBX_MON_HW3_ID_ = 0x37;
+static constexpr uint8_t UBX_MON_IO_ID_ = 0x02;
+static constexpr uint8_t UBX_MON_MSGPP_ID_ = 0x06;
+static constexpr uint8_t UBX_MON_PATCH_ID_ = 0x27;
+static constexpr uint8_t UBX_MON_RF_ID_ = 0x38;
+static constexpr uint8_t UBX_MON_RXBUF_ID_ = 0x07;
+static constexpr uint8_t UBX_MON_RXR_ID_ = 0x21;
+static constexpr uint8_t UBX_MON_SPAN_ID_ = 0x31;
+static constexpr uint8_t UBX_MON_TXBUF_ID_ = 0x08;
+static constexpr uint8_t UBX_MON_VER_ID_ = 0x04;
 
 }  // namespace bfs
 
-#endif  // SRC_UBX_ACK_H_
+#endif  // SRC_UBX_MON_H_

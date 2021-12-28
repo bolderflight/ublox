@@ -23,40 +23,23 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef SRC_UBX_ACK_H_
-#define SRC_UBX_ACK_H_
+#ifndef SRC_UBX_RXM_H_
+#define SRC_UBX_RXM_H_
 
 #include <cstdint>
 #include <cstddef>
 #include "ubx_defs.h"  // NOLINT
 
 namespace bfs {
-/*
-* Defs for UBX-ACK messages
-*/
-/* UBX-ACK IDs */
-static constexpr uint8_t UBX_ACK_ACK_ID_ = 0x01;
-static constexpr uint8_t UBX_ACK_NAK_ID_ = 0x00;
-/* UBX-ACK messages */
-struct UbxAckAck {
-  static constexpr uint8_t cls = UBX_ACK_CLS_;
-  static constexpr uint8_t id = UBX_ACK_ACK_ID_;
-  static constexpr uint16_t len = 2;
-  struct {
-    U1 cls_id;
-    U1 msg_id;
-  } payload;
-};
-struct UbxAckNak {
-  static constexpr uint8_t cls = UBX_ACK_CLS_;
-  static constexpr uint8_t id = UBX_ACK_NAK_ID_;
-  static constexpr uint16_t len = 2;
-  struct {
-    U1 cls_id;
-    U1 msg_id;
-  } payload;
-};
+
+/* UBX-RXM IDs */
+static constexpr uint8_t UBX_RXM_MEASX_ID_ = 0x14;
+static constexpr uint8_t UBX_RXM_PMREQ_ID_ = 0x41;
+static constexpr uint8_t UBX_RXM_RAWX_ID_ = 0x15;
+static constexpr uint8_t UBX_RXM_RLM_ID_ = 0x59;
+static constexpr uint8_t UBX_RXM_RTCM_ID_ = 0x32;
+static constexpr uint8_t UBX_RXM_SFRBX_ID_ = 0x13;
 
 }  // namespace bfs
 
-#endif  // SRC_UBX_ACK_H_
+#endif  // SRC_UBX_RXM_H_
