@@ -28,16 +28,34 @@
 
 #include <cstdint>
 #include <cstddef>
+#include "ubx_defs.h"
 
 namespace bfs {
-
 /*
 * Defs for UBX-ACK messages
 */
-
-/* ID's */
-static constexpr uint8_t UBX_ACK_NACK_ID_ = 0x00;
+/* UBX-ACK IDs */
 static constexpr uint8_t UBX_ACK_ACK_ID_ = 0x01;
+static constexpr uint8_t UBX_ACK_NAK_ID_ = 0x00;
+/* UBX-ACK messages */
+struct UbxAckAck {
+  static constexpr uint8_t cls = UBX_ACK_CLS_;
+  static constexpr uint8_t id = UBX_ACK_ACK_ID_;
+  static constexpr uint16_t len = 2;
+  struct {
+    U1 cls_id;
+    U1 msg_id;
+  } payload;
+};
+struct UbxAckNak {
+  static constexpr uint8_t cls = UBX_ACK_CLS_;
+  static constexpr uint8_t id = UBX_ACK_NAK_ID_;
+  static constexpr uint16_t len = 2;
+  struct {
+    U1 cls_id;
+    U1 msg_id;
+  } payload;
+};
 
 }  // namespace bfs
 

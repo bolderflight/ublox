@@ -28,6 +28,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include "ubx_defs.h"
 
 namespace bfs {
 /*
