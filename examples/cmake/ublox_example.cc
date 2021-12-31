@@ -38,8 +38,16 @@ int main() {
   Serial.begin(115200);
   while(!Serial) {}
   Serial.println("Starting Test v1");
-  bool result = gnss.Begin(9600);
+  bool result = gnss.Begin();
+  Serial.print("RESULT ");
   Serial.println(result);
+  // Serial.print("HP POS ");
+  // Serial.println(gnss.use_hp_pos_);
+  // gnss.TestCommsV9();
+  // gnss.TestCommsLegacy();
+  while (1) {
+    // gnss.Read();
+  }
   // bfs::U1 val1;
   // unsigned long t1, t2;
   // bool result;

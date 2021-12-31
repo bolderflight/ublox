@@ -60,97 +60,31 @@ static constexpr uint8_t UBX_RXM_CLS_ = 0x02;
 static constexpr uint8_t UBX_SEC_CLS_ = 0x27;
 static constexpr uint8_t UBX_TIM_CLS_ = 0x0d;
 static constexpr uint8_t UBX_UPD_CLS_ = 0x09;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Message structure transmit / receive */
+/* Message structure for receiving payloads of unknown size */
 struct UbxMsg {
   uint8_t cls;
   uint8_t id;
   uint16_t len;
   uint8_t payload[UBX_MAX_PAYLOAD_];
 };
-
-
-
-
-
-// /* ID's */
-// static constexpr uint8_t UBX_NAV_PVT_ID_ = 0x07;
-// static constexpr uint8_t UBX_CFG_VALGET_ID_ = 0x8b;
-// /* Maximum packet length that we'll receive */
-// static constexpr std::size_t MAX_PACKET_LEN_ = 96;
-// /* uBlox packet definitions */
-// struct Ubx {
-//   uint8_t cls;
-//   uint8_t id;
-//   uint8_t len;
-//   void *payload;
-// };
-// struct UbxCfgValget {
-//   U1 version;
-//   U1 layer;
-//   U2 position;
-//   U4 key;
-//   U1 val[8];
-// };
-// struct UbxNavPvt {
-//   U4 itow;
-//   U2 year;
-//   U1 month;
-//   U1 day;
-//   U1 hour;
-//   U1 min;
-//   U1 sec;
-//   X1 valid;
-//   U4 tacc;
-//   I4 nano;
-//   U1 fix_type;
-//   X1 flags;
-//   X1 flags2;
-//   U1 num_sv;
-//   I4 lon;
-//   I4 lat;
-//   I4 height;
-//   I4 h_msl;
-//   U4 h_acc;
-//   U4 v_acc;
-//   I4 vel_n;
-//   I4 vel_e;
-//   I4 vel_d;
-//   I4 g_speed;
-//   I4 head_mot;
-//   U4 s_acc;
-//   U4 head_acc;
-//   U2 pdop;
-//   X1 flags3;
-//   U1 resv0[5];
-//   I4 head_veh;
-//   I2 mag_dec;
-//   U2 mag_acc;
-// };
-
-// /* Configuration keys */
-// static constexpr uint32_t CFG_RATE_MEAS_ = 0x30210001;
+/* Structure to request a message */
+struct UbxReq {
+  uint8_t cls;
+  uint8_t id;
+  uint16_t len;
+  uint8_t payload;
+};
+/* Port definitions */
+static constexpr uint8_t UBX_COM_PORT_I2C_ = 0;
+static constexpr uint8_t UBX_COM_PORT_UART1_ = 1;
+static constexpr uint8_t UBX_COM_PORT_UART2_ = 2;
+static constexpr uint8_t UBX_COM_PORT_USB_ = 3;
+static constexpr uint8_t UBX_COM_PORT_SPI_ = 4;
+/* Port protocols */
+static constexpr uint8_t UBX_COM_PROT_UBX_ = 0x01;
+static constexpr uint8_t UBX_COM_PROT_NMEA_ = 0x02;
+static constexpr uint8_t UBX_COM_PROT_RTCM_ = 0x04;
+static constexpr uint8_t UBX_COM_PROT_RTCM3_ = 0x08;
 
 }  // namespace bfs
 

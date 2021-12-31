@@ -30,8 +30,6 @@
 #include <cstddef>
 #include "ubx_defs.h"
 
-// XXX Get / Set vs Poll request
-
 namespace bfs {
 /*
 * Defs for UBX-CFG messages
@@ -64,15 +62,6 @@ static constexpr uint8_t UBX_CFG_VALDEL_ID_ = 0x8c;
 static constexpr uint8_t UBX_CFG_VALGET_ID_ = 0x8b;
 static constexpr uint8_t UBX_CFG_VALSET_ID_ = 0x8a;
 /* UBX-CFG Messages */
-struct UbxCfgAnt {
-  static constexpr uint8_t cls = UBX_CFG_CLS_;
-  static constexpr uint8_t id = UBX_CFG_ANT_ID_;
-  static constexpr uint16_t len = 4;
-  struct {
-    X2 flags;   // Antenna flag mask
-    X2 pins;    // Antenna pin config
-  } payload;
-};
 struct UbxCfgCfg {
   static constexpr uint8_t cls = UBX_CFG_CLS_;
   static constexpr uint8_t id = UBX_CFG_CFG_ID_;
@@ -84,165 +73,87 @@ struct UbxCfgCfg {
     X1 device_mask;
   } payload;
 };
-struct UbxCfgDatSet {
+struct UbxCfgMsgSet {
   static constexpr uint8_t cls = UBX_CFG_CLS_;
-  static constexpr uint8_t id = UBX_CFG_DAT_ID_;
-  static constexpr uint16_t len = 44;
-  struct {
-    R8 maj_a;   // Semi-major axis, m
-    R8 flat;    // 1.0 / flattening
-    R4 d_x;     // X axis shift at origin, m
-    R4 d_y;     // Y axis shift at origin, m
-    R4 d_z;     // Z axis shift at origin, m
-    R4 rot_x;   // Rotation about the x axis, s
-    R4 rot_y;   // Rotation about the y axis, s
-    R4 rot_z;   // Rotation about the z axis, s
-    R4 scale;   // Scale change, ppm
-  } payload;
-};
-struct UbxCfgDatGet {
-  static constexpr uint8_t cls = UBX_CFG_CLS_;
-  static constexpr uint8_t id = UBX_CFG_DAT_ID_;
-  static constexpr uint16_t len = 52;
-  struct {
-    U2 datum_num;       // Datum number
-    CH datum_name[6];   // Datum name
-    R8 maj_a;           // Semi-major axis, m
-    R8 flat;            // 1.0 / flattening
-    R4 d_x;             // X axis shift at origin, m
-    R4 d_y;             // Y axis shift at origin, m
-    R4 d_z;             // Z axis shift at origin, m
-    R4 rot_x;           // Rotation about the x axis, s
-    R4 rot_y;           // Rotation about the y axis, s
-    R4 rot_z;           // Rotation about the z axis, s
-    R4 scale;           // Scale change, ppm
-  } payload;
-};
-struct UbxCfgDgnss {
-  static constexpr uint8_t cls = UBX_CFG_CLS_;
-  static constexpr uint8_t id = UBX_CFG_DGNSS_ID_;
-  static constexpr uint16_t len = 4;
-  struct {
-    U1 dgnss_mode;    // Specifies the DGNSS mode
-    U1 reserved0[3];
-  } payload;
-};
-struct UbxCfgGeofence {
-
-};
-// struct UbxCfgGnss {
-//   static constexpr uint8_t cls = UBX_CFG_CLS_;
-//   static constexpr uint8_t id = UBX_CFG_GNSS_ID_;
-//   uint16_t len;
-//   struct {
-
-//   } payload;
-// };
-struct UbxCfgInfPoll {
-
-};
-struct UbxCfgInf {
-
-};
-struct UbxCfgItfm {
-  static constexpr uint8_t cls = UBX_CFG_CLS_;
-  static constexpr uint8_t id = UBX_CFG_ITFM_ID_;
+  static constexpr uint8_t id = UBX_CFG_MSG_ID_;
   static constexpr uint16_t len = 8;
   struct {
-    X4 config;    // Interference configuration
-    X4 config2;   // Extra settings for jamming / interference monitor
+    U1 msg_class;
+    U1 msg_id;
+    U1 rate[6];
   } payload;
-};
-struct UbxCfgLogfilter {
-  static constexpr uint8_t cls = UBX_CFG_CLS_;
-  static constexpr uint8_t id = UBX_CFG_LOGFILTER_ID_;
-  static constexpr uint16_t len = 12;
-  struct {
-    U1 version;             // Message version
-    X1 flags;               // Flags
-    U2 min_interval;        // Minimum time interval between logged positions, s
-    U2 time_threshold;      // Time diff to trigger log, s
-    U2 speed_threshold;     // Speed to trigger log, m/s
-    U4 position_threshold;  // Position diff to trigger log, m
-  } payload;
-};
-struct UbxCfgMsgPoll {
-
-};
-struct UbxCfgMsgSet {
-
-};
-struct UbxCfgMsgSet {
-
 };
 struct UbxCfgNav5 {
-
+  static constexpr uint8_t cls = UBX_CFG_CLS_;
+  static constexpr uint8_t id = UBX_CFG_NAV5_ID_;
+  static constexpr uint16_t len = 36;
+  struct {
+    X2 mask;
+    U1 dyn_model;
+    U1 fix_mode;
+    I4 fixed_alt;
+    U4 fixed_alt_var;
+    I1 min_elev;
+    U1 dr_limit;
+    U2 p_dop;
+    U2 t_dop;
+    U2 p_acc;
+    U2 t_acc;
+    U1 static_hold_thresh;
+    U1 dgnss_timeout;
+    U1 cno_thresh_num_svs;
+    U1 cno_thresh;
+    U1 reserved0[2];
+    U2 static_hold_max_dist;
+    U1 utc_standard;
+    U1 reserved1[5];
+  } payload;
 };
-struct UbxCfgNavx5 {
-
-};
-struct UbxCfgNmea {
-
-};
-struct UbxCfgOdo {
-
+struct UbxCfgPrtReq {
+  static constexpr uint8_t cls = UBX_CFG_CLS_;
+  static constexpr uint8_t id = UBX_CFG_PRT_ID_;
+  static constexpr uint16_t len = 1;
+  struct {
+    U1 port_id;
+  } payload;
 };
 struct UbxCfgPrt {
-
-};
-struct UbxCfgPrt {
-
-};
-struct UbxCfgPrt {
-
-};
-struct UbxCfgPrt {
-
-};
-struct UbxCfgPrt {
-
-};
-struct UbxCfgPwr {
-
+  static constexpr uint8_t cls = UBX_CFG_CLS_;
+  static constexpr uint8_t id = UBX_CFG_PRT_ID_;
+  static constexpr uint16_t len = 20;
+  struct {
+    U1 port_id;
+    U1 reserved0;
+    X2 tx_ready;
+    X4 mode;
+    U4 baud_rate;
+    X2 in_proto_mask;
+    X2 out_proto_mask;
+    X2 flags;
+    U1 reserved1[2];
+  } payload;
 };
 struct UbxCfgRate {
-
+  static constexpr uint8_t cls = UBX_CFG_CLS_;
+  static constexpr uint8_t id = UBX_CFG_RATE_ID_;
+  static constexpr uint16_t len = 6;
+  struct {
+    U2 meas_rate;
+    U2 nav_rate;
+    U2 time_ref;
+  } payload;
 };
-struct UbxCfgRinv {
-
-};
-struct UbxCfgRst {
-
-};
-struct UbxCfgSbas {
-
-};
-struct UbxCfgTmode3 {
-
-};
-struct UbxCfgTp5 {
-
-};
-struct UbxCfgUsb {
-
-};
-struct UbxCfgValdel {
-
-};
-struct UbxCfgValdel {
-
-};
-struct UbxCfgValget {
-
-};
-struct UbxCfgValget {
-
-};
+template<std::size_t N>
 struct UbxCfgValset {
-
-};
-struct UbxCfgValset {
-
+  static constexpr uint8_t cls = UBX_CFG_CLS_;
+  static constexpr uint8_t id = UBX_CFG_VALSET_ID_;
+  uint16_t len;
+  struct {
+    U1 version = 0x00;
+    X1 layers;
+    U1 reserved0[2];
+    U1 cfg_data[N];
+  } payload;
 };
 
 }  // namespace bfs

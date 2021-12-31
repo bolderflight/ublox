@@ -33,20 +33,24 @@ if (DEFINED MCU)
     GIT_TAG v4.0.4
   )
   FetchContent_MakeAvailable(units)
+  # Fetch eigen
+  FetchContent_Declare(
+    eigen
+    GIT_REPOSITORY 	https://github.com/bolderflight/eigen.git
+    GIT_TAG v3.0.2
+  )
+  FetchContent_MakeAvailable(eigen)
   # Add the library target
   add_library(ubx
     src/ubx.cpp
     src/ubx.h
-    src/ubx_defs.h
-    src/ubx_nav.h
-    src/ubx_cfg.h
-    src/ubx_ack.h
   )
   # Link libraries
   target_link_libraries(ubx
     PUBLIC
       core
       units
+      eigen
   )
   # Setup include directories 
   target_include_directories(ubx PUBLIC 
