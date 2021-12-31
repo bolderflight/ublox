@@ -46,8 +46,6 @@ using X4 = uint32_t;
 using R4 = float;
 using R8 = double;
 using CH = char;
-/* Max payload supported */
-static constexpr std::size_t UBX_MAX_PAYLOAD_ = 1024;
 /* Classes */
 static constexpr uint8_t UBX_ACK_CLS_ = 0x05;
 static constexpr uint8_t UBX_CFG_CLS_ = 0x06;
@@ -60,20 +58,6 @@ static constexpr uint8_t UBX_RXM_CLS_ = 0x02;
 static constexpr uint8_t UBX_SEC_CLS_ = 0x27;
 static constexpr uint8_t UBX_TIM_CLS_ = 0x0d;
 static constexpr uint8_t UBX_UPD_CLS_ = 0x09;
-/* Message structure for receiving payloads of unknown size */
-struct UbxMsg {
-  uint8_t cls;
-  uint8_t id;
-  uint16_t len;
-  uint8_t payload[UBX_MAX_PAYLOAD_];
-};
-/* Structure to request a message */
-struct UbxReq {
-  uint8_t cls;
-  uint8_t id;
-  uint16_t len;
-  uint8_t payload;
-};
 /* Port definitions */
 static constexpr uint8_t UBX_COM_PORT_I2C_ = 0;
 static constexpr uint8_t UBX_COM_PORT_UART1_ = 1;

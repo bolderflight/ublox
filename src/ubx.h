@@ -26,7 +26,27 @@
 #ifndef SRC_UBX_H_
 #define SRC_UBX_H_
 
+#if defined(ARDUINO)
+#include <Arduino.h>
+#else
 #include "core/core.h"
+#endif
+#include <cstddef>
+#include <cstdint>
+#include "eigen.h"
+#include "ubx_ack.h"
+#include "ubx_cfg.h"
+#include "ubx_defs.h"
+#include "ubx_inf.h"
+#include "ubx_keys.h"
+#include "ubx_log.h"
+#include "ubx_mga.h"
+#include "ubx_mon.h"
+#include "ubx_nav.h"
+#include "ubx_rxm.h"
+#include "ubx_sec.h"
+#include "ubx_time.h"
+#include "ubx_upd.h"
 
 namespace bfs {
 
@@ -62,12 +82,36 @@ class Ubx {
     DYN_MDL_BIKE = 10
   };
   explicit Ubx(HardwareSerial* bus) : bus_(bus) {}
-  bool Begin();
+  /* Automatically finds the baud rate and configures the receiver */
+  bool AutoBegin();
+  /* Reads NAV data and returns true on EOE */
   bool Read();
+  /* Set the receiver dynamic model */
   bool SetDynModel(const DynMdl mdl);
-  bool ConfigRtcmInput(const bool serial1, const bool serial2);
-  bool ConfigRtcmOutput(const BaseMode mode, const bool serial1,
-                        const bool serial2);
+  // bool ConfigRtcmInput(const bool serial1, const bool serial2);
+  // bool ConfigRtcmOutput(const BaseMode mode, const bool serial1,
+  //                       const bool serial2);
+  /* Standard begin, set the baud and test for comms */
+  bool Begin(const int32_t baud);
+  /* Restore factory default config */
+  void SetFactoryDefaults();
+  /* Sets the nav solution rate */
+  bool SetRate(const uint16_t period_ms);
+  /* Tests for good communication */
+  bool TestComms();
+  /* Automatically figures out the baud rate of the receiver */
+  int32_t AutoBaud();
+  /* Sets the baud rate of the receiver */
+  bool SetBaud(const uint8_t port, const uint32_t baud);
+  /* Configures the port input & output protocols */
+  bool ConfigPort(const uint8_t port, const uint8_t in_prot,
+                  const uint8_t out_prot);
+  /* Enables our standard set of messages */
+  bool EnableMsgs();
+  /* Enables a message given a class, ID, and port */
+  bool EnableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
+  /* Disables a message given a class, ID, and port */
+  bool DisableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
 
  private:
   /* Send a message to the uBlox */
@@ -85,10 +129,12 @@ class Ubx {
     /* Write the length and updated the checksum */
     bus_->write(static_cast<uint8_t>(ref.len & 0xFF));
     bus_->write(static_cast<uint8_t>(ref.len >> 8 & 0xFF));
-    chksum_tx_.Update((uint8_t *)(&ref.len), 2);
+    chksum_tx_.Update(reinterpret_cast<const uint8_t *>(&ref.len), 2);
     /* Write the payload and finish computing the checksum */
-    bus_->write((uint8_t *)&ref.payload, ref.len);
-    chk_cmp_tx_ = chksum_tx_.Update((uint8_t *)&ref.payload, ref.len);
+    bus_->write(reinterpret_cast<const uint8_t *>(&ref.payload), ref.len);
+    chk_cmp_tx_ =
+              chksum_tx_.Update(reinterpret_cast<const uint8_t *>(&ref.payload),
+                                ref.len);
     /* Write the checksum */
     bus_->write(static_cast<uint8_t>(chk_cmp_tx_ & 0xFF));
     bus_->write(static_cast<uint8_t>(chk_cmp_tx_ >> 8 & 0xFF));
@@ -101,7 +147,7 @@ class Ubx {
     do {
       SendMsg(ref);
       elapsedMillis t_ms;
-      while(t_ms < TIMEOUT_MS_) {
+      while (t_ms < TIMEOUT_MS_) {
         if (ParseMsg()) {
           if ((rx_msg_.cls == cls) && (rx_msg_.id == id)) {
             return true;
@@ -118,7 +164,7 @@ class Ubx {
     do {
       SendMsg(ref);
       elapsedMillis t_ms;
-      while(t_ms < TIMEOUT_MS_) {
+      while (t_ms < TIMEOUT_MS_) {
         if (ParseMsg()) {
           if (rx_msg_.cls == UBX_ACK_CLS_) {
             if ((rx_msg_.payload[0] == ref.cls) &&
@@ -137,28 +183,14 @@ class Ubx {
   }
   /* Parse messages, return true on valid msg received */
   bool ParseMsg();
-  /* Restore factory default config */
-  void SetFactoryDefaults();
-  /* Enables a message given a class, ID, and port */
-  bool EnableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
-  /* Enables our standard set of messages */
-  bool EnableMsgs();
-  /* Sets the baud rate */
-  bool SetBaud(const uint8_t port, const uint32_t baud);
-  /* Disables the NMEA messages */
-  bool DisableNmea(const uint8_t port);
-  /* Sets the nav solution rate */
-  bool SetRate(const uint16_t rate);
-  /* Tests for good communication */
-  bool TestComms();
-  /* Automatically figures out the baud rate of the received */
-  bool AutoBaud();
+  /* Process nav data */
+  void ProcessNavData(); 
   /* Communication */
   HardwareSerial* bus_;
   /* Potential baudrates */
   int32_t baud_rates_[8] = {38400, 9600, 19200, 57600, 115200, 230400, 460800,
                             921600};
-  static constexpr int32_t DESIRED_BAUD_ = 460800; 
+  static constexpr int32_t DESIRED_BAUD_ = 460800;
   int32_t baud_;
   /* Configuration */
   uint16_t SAMPLE_PERIOD_MS_ = 100;
@@ -180,6 +212,23 @@ class Ubx {
   uint8_t c_, len_, chk_rx_, chk_[2];
   uint16_t chk_cmp_rx_, chk_cmp_tx_;
   std::size_t parser_state_ = 0;
+  /* Data members */
+  bool eoe_ = false;
+  Fix fix_;
+  int8_t num_sv_;
+  int16_t week_;
+  int32_t tow_ms_;
+  float alt_wgs84_m_;
+  float alt_msl_m_;
+  float spd_mps_;
+  float gnd_spd_mps_;
+  float track_deg_;
+  float gdop, pdop, tdop, vdop, hdop, ndop, edop;
+  float h_acc_, v_acc_, p_acc_, track_acc_;
+  Eigen::Vector3f ecef_vel_mps_;
+  Eigen::Vector3f ned_vel_mps_;
+  Eigen::Vector3d ecef_m_;
+  Eigen::Vector3d llh_;
   /* Class to compute UBX checksum */
   class Checksum {
    public:
@@ -205,6 +254,7 @@ class Ubx {
       }
       return static_cast<uint16_t>(sum1_) << 8 | sum0_;
     }
+
    private:
     uint8_t sum0_, sum1_;
   } chksum_rx_, chksum_tx_;
@@ -222,146 +272,26 @@ class Ubx {
     uint16_t len = 0;
     uint8_t payload;
   } req_msg_;
-  /* Port definitions */
-  static constexpr uint8_t UBX_COM_PORT_I2C_ = 0;
-  static constexpr uint8_t UBX_COM_PORT_UART1_ = 1;
-  static constexpr uint8_t UBX_COM_PORT_UART2_ = 2;
-  static constexpr uint8_t UBX_COM_PORT_USB_ = 3;
-  static constexpr uint8_t UBX_COM_PORT_SPI_ = 4;
-  /* Port protocols */
-  static constexpr uint8_t UBX_COM_PROT_UBX_ = 0x01;
-  static constexpr uint8_t UBX_COM_PROT_NMEA_ = 0x02;
-  static constexpr uint8_t UBX_COM_PROT_RTCM_ = 0x04;
-  static constexpr uint8_t UBX_COM_PROT_RTCM3_ = 0x08;
-  /* Class definitions */
-  static constexpr uint8_t UBX_ACK_CLS_ = 0x05;
-  static constexpr uint8_t UBX_CFG_CLS_ = 0x06;
-  static constexpr uint8_t UBX_NAV_CLS_ = 0x01;
-  /* ID definitions */
-  static constexpr uint8_t UBX_ACK_NAK_ID_ = 0x00;
-  static constexpr uint8_t UBX_ACK_ACK_ID_ = 0x01;
-  static constexpr uint8_t UBX_CFG_PRT_ID_ = 0x00;
-  static constexpr uint8_t UBX_CFG_MSG_ID_ = 0x01;
-  static constexpr uint8_t UBX_CFG_RATE_ID_ = 0x08;
-  static constexpr uint8_t UBX_CFG_CFG_ID_ = 0x09;
-  static constexpr uint8_t UBX_CFG_NAV5_ID_ = 0x24;
-  static constexpr uint8_t UBX_CFG_VALSET_ID_ = 0x8a;
-  static constexpr uint8_t UBX_CFG_VALGET_ID_ = 0x8b;
-  static constexpr uint8_t UBX_NAV_POSECEF_ID_ = 0x01;
-  static constexpr uint8_t UBX_NAV_POSLLH_ID_ = 0x02;
-  static constexpr uint8_t UBX_NAV_STATUS_ID_ = 0x03;
-  static constexpr uint8_t UBX_NAV_DOP_ID_ = 0x04;
-  static constexpr uint8_t UBX_NAV_VELECEF_ID_ = 0x11;
-  static constexpr uint8_t UBX_NAV_VELNED_ID_ = 0x12;
-  static constexpr uint8_t UBX_NAV_HPPOSECEF_ID_ = 0x13;
-  static constexpr uint8_t UBX_NAV_HPPOSLLH_ID_ = 0x14;
-  static constexpr uint8_t UBX_NAV_TIMEUTC_ID_ = 0x21;
-  static constexpr uint8_t UBX_NAV_TIMELS_ID_ = 0x26;
-  static constexpr uint8_t UBX_NAV_EOE_ID_ = 0x61;
-  /*
-  * Aliases for uBlox defined types to make defining packets from the interface
-  * descriptions easier.
-  */
-  using U1 = uint8_t;
-  using I1 = int8_t;
-  using X1 = uint8_t;
-  using U2 = uint16_t;
-  using I2 = int16_t;
-  using X2 = uint16_t;
-  using U4 = uint32_t;
-  using I4 = int32_t;
-  using X4 = uint32_t;
-  using R4 = float;
-  using R8 = double;
-  using CH = char;
-  /* Request port config */
-  struct UbxCfgPrtReq {
-    static constexpr uint8_t cls = UBX_CFG_CLS_;
-    static constexpr uint8_t id = UBX_CFG_PRT_ID_;
-    static constexpr uint16_t len = 1;
-    struct {
-      U1 port_id;
-    } payload;
-  } ubx_cfg_prt_req_;
-  /* Port config */
-  struct UbxCfgPrt {
-    static constexpr uint8_t cls = UBX_CFG_CLS_;
-    static constexpr uint8_t id = UBX_CFG_PRT_ID_;
-    static constexpr uint16_t len = 20;
-    struct {
-      U1 port_id;
-      U1 reserved0;
-      X2 tx_ready;
-      X4 mode;
-      U4 baud_rate;
-      X2 in_proto_mask;
-      X2 out_proto_mask;
-      X2 flags;
-      U1 reserved1[2];
-    } payload;
-  } ubx_cfg_prt_;
-  /* Rate config */
-  struct UbxCfgRate {
-    static constexpr uint8_t cls = UBX_CFG_CLS_;
-    static constexpr uint8_t id = UBX_CFG_RATE_ID_;
-    static constexpr uint16_t len = 6;
-    struct {
-      U2 meas_rate;
-      U2 nav_rate;
-      U2 time_ref;
-    } payload;
-    } ubx_cfg_rate_;
-  /* Configure messages */
-  struct UbxCfgMsg {
-    static constexpr uint8_t cls = UBX_CFG_CLS_;
-    static constexpr uint8_t id = UBX_CFG_MSG_ID_;
-    static constexpr uint16_t len = 8;
-    struct {
-      U1 msg_class;
-      U1 msg_id;
-      U1 rate[6];
-    } payload;
-  } ubx_cfg_msg_;
-  /* Configure NAV5 */
-  struct UbxCfgNav5 {
-    static constexpr uint8_t cls = UBX_CFG_CLS_;
-    static constexpr uint8_t id = UBX_CFG_NAV5_ID_;
-    static constexpr uint16_t len = 36;
-    struct {
-      X2 mask;
-      U1 dyn_model;
-      U1 fix_mode;
-      I4 fixed_alt;
-      U4 fixed_alt_var;
-      I1 min_elev;
-      U1 dr_limit;
-      U2 p_dop;
-      U2 t_dop;
-      U2 p_acc;
-      U2 t_acc;
-      U1 static_hold_thresh;
-      U1 dgnss_timeout;
-      U1 cno_thresh_num_svs;
-      U1 cno_thresh;
-      U1 reserved0[2];
-      U2 static_hold_max_dist;
-      U1 utc_standard;
-      U1 reserved1[5];
-    } payload;
-  } ubx_cfg_nav5_;
-  /* Restore default config */
-  struct UbxCfgCfg {
-    static constexpr uint8_t cls = UBX_CFG_CLS_;
-    static constexpr uint8_t id = UBX_CFG_CFG_ID_;
-    static constexpr uint16_t len = 13;
-    struct {
-      X4 clear_mask;
-      X4 save_mask;
-      X4 load_mask;
-      X1 device_mask;
-    } payload;
-  } ubx_cfg_cfg_;
+  /* Config messages */
+  UbxCfgPrtReq ubx_cfg_prt_req_;
+  UbxCfgPrt ubx_cfg_prt_;
+  UbxCfgRate ubx_cfg_rate_;
+  UbxCfgMsg ubx_cfg_msg_;
+  UbxCfgNav5 ubx_cfg_nav5_;
+  UbxCfgCfg ubx_cfg_cfg_;
   /* Data */
+  UbxNavDop ubx_nav_dop_;
+  UbxNavEoe ubx_nav_eoe_;
+  UbxNavHpposecef ubx_nav_hp_pos_ecef_;
+  UbxNavHpposllh ubx_nav_hp_pos_llh_;
+  UbxNavPosecef ubx_nav_pos_ecef_;
+  UbxNavPosllh ubx_nav_pos_llh_;
+  UbxNavRelposned ubx_nav_rel_pos_ned_;
+  UbxNavStatus ubx_nav_status_;
+  UbxNavTimels ubx_nav_time_ls_;
+  UbxNavTimeutc ubx_nav_time_utc_;
+  UbxNavVelecef ubx_nav_vel_ecef_;
+  UbxNavVelned ubx_nav_vel_ned_;
 };
 
 }  // namespace bfs

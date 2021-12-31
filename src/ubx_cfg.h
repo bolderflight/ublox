@@ -73,7 +73,7 @@ struct UbxCfgCfg {
     X1 device_mask;
   } payload;
 };
-struct UbxCfgMsgSet {
+struct UbxCfgMsg {
   static constexpr uint8_t cls = UBX_CFG_CLS_;
   static constexpr uint8_t id = UBX_CFG_MSG_ID_;
   static constexpr uint16_t len = 8;
@@ -141,18 +141,6 @@ struct UbxCfgRate {
     U2 meas_rate;
     U2 nav_rate;
     U2 time_ref;
-  } payload;
-};
-template<std::size_t N>
-struct UbxCfgValset {
-  static constexpr uint8_t cls = UBX_CFG_CLS_;
-  static constexpr uint8_t id = UBX_CFG_VALSET_ID_;
-  uint16_t len;
-  struct {
-    U1 version = 0x00;
-    X1 layers;
-    U1 reserved0[2];
-    U1 cfg_data[N];
   } payload;
 };
 
