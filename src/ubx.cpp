@@ -227,7 +227,6 @@ void Ubx::ProcessNavData() {
   gnd_spd_mps_ = static_cast<float>(ubx_nav_pvt_.payload.g_speed) / 1000.0f;
   track_deg_ = static_cast<float>(ubx_nav_pvt_.payload.head_mot) / 100000.0f;
   track_acc_deg_ = static_cast<float>(ubx_nav_pvt_.payload.head_acc) / 100000.0f;
-
   /* LLH position */
   invalid_llh_ = ubx_nav_pvt_.payload.flags3 & 0x01;
   if (!invalid_llh_) {
@@ -271,7 +270,7 @@ void Ubx::ProcessNavData() {
                     static_cast<double>(ubx_nav_hp_pos_ecef_.payload.ecef_z_hp)
                     * 1e-2) * 1e-2;
       p_acc_m_ = static_cast<float>(ubx_nav_hp_pos_ecef_.payload.p_acc) /
-                 1000.0f;
+                 10000.0f;
     } else {
       ecef_m_[0] = static_cast<double>(ubx_nav_pos_ecef_.payload.ecef_x) * 1e-2;
       ecef_m_[1] = static_cast<double>(ubx_nav_pos_ecef_.payload.ecef_y) * 1e-2;
