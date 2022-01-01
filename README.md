@@ -61,6 +61,7 @@ This library parses data from the following messages:
    * UBX-NAV-POSECEF
    * UBX-NAV-PVT
    * UBX-NAV-VELECEF
+   * UBX-NAV-TIMEGPS
 
 Additionally, if high accuracy position data is available, it is also used.
    * UBX-NAV-HPPOSECEF
