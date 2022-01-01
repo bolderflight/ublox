@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems Inc
+* Copyright (c) 2022 Bolder Flight Systems Inc
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the “Software”), to
@@ -23,47 +23,32 @@
 * IN THE SOFTWARE.
 */
 
-#include "ublox.h"
+#include "ubx.h"
 
-/* Ublox object on hardware serial port 1 */
-Ublox gps(&Serial1);
-
-/* Rad to Deg conversion */
-static constexpr double rad2deg = 180.0 / 3.14159265358979323846;
+/* Ublox object, GNSS on Serial3 */
+bfs::Ubx gnss(&Serial3);
 
 void setup() {
   /* Serial to display data */
   Serial.begin(115200);
-  while (!Serial) {}
-  /* Starting communication with the GPS receiver, 115200 baud */
-  if (!gps.Begin(115200)) {
-    Serial.println("Cannot communicate with GPS receiver");
+  while(!Serial) {}
+  if (!gnss.AutoBegin()) {
+    Serial.println("Unable to establish communication and configure GNSS RX");
     while (1) {}
   }
 }
 
 void loop() {
-  /* Check for new packet and display some data */
-  if (gps.Read()) {
-    Serial.print(gps.year());                   ///< [year], Year (UTC)
+  if(gnss.Read()) {
+    Serial.print(gnss.fix());
     Serial.print("\t");
-    Serial.print(gps.month());                  ///< [month], Month, range 1..12 (UTC)
+    Serial.print(gnss.num_sv());
     Serial.print("\t");
-    Serial.print(gps.day());                    ///< [day], Day of month, range 1..31 (UTC)
+    Serial.print(gnss.lat_deg(), 6);
     Serial.print("\t");
-    Serial.print(gps.hour());                   ///< [hour], Hour of day, range 0..23 (UTC)
+    Serial.print(gnss.lon_deg(), 6);
     Serial.print("\t");
-    Serial.print(gps.minute());                 ///< [min], Minute of hour, range 0..59 (UTC)
-    Serial.print("\t");
-    Serial.print(gps.sec());                    ///< [s], Seconds of minute, range 0..60 (UTC)
-    Serial.print("\t");
-    Serial.print(gps.num_satellites());         ///< [ND], Number of satellites used in Nav Solution
-    Serial.print("\t");
-    Serial.print(gps.lat_rad() * rad2deg, 10);  ///< [deg], Latitude
-    Serial.print("\t");
-    Serial.print(gps.lon_rad() * rad2deg,10);   ///< [deg], Longitude
-    Serial.print("\t");
-    Serial.println(gps.alt_msl_m());            ///< [m], Height above mean sea level
+    Serial.print(gnss.alt_wgs84_m());
+    Serial.print("\n");
   }
 }
-

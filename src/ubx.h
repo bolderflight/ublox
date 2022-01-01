@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems Inc
+* Copyright (c) 2022 Bolder Flight Systems Inc
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the “Software”), to
@@ -52,11 +52,6 @@ namespace bfs {
 
 class Ubx {
  public:
-  template<typename T>
-  struct Optional {
-    bool has_value = false;
-    T value;
-  };
   enum Fix : int8_t {
     FIX_NONE = 0,
     FIX_2D = 1,
@@ -64,10 +59,6 @@ class Ubx {
     FIX_DGNSS = 3,
     FIX_RTK_FLOAT = 4,
     FIX_RTK_FIXED = 5
-  };
-  enum BaseMode {
-    MOVING_BASE,
-    FIXED_BASE
   };
   enum DynMdl : uint8_t {
     DYN_MDL_PORTABLE = 0,
@@ -88,9 +79,6 @@ class Ubx {
   bool Read();
   /* Set the receiver dynamic model */
   bool SetDynModel(const DynMdl mdl);
-  // bool ConfigRtcmInput(const bool serial1, const bool serial2);
-  // bool ConfigRtcmOutput(const BaseMode mode, const bool serial1,
-  //                       const bool serial2);
   /* Standard begin, set the baud and test for comms */
   bool Begin(const int32_t baud);
   /* Restore factory default config */
@@ -108,10 +96,6 @@ class Ubx {
                   const uint8_t out_prot);
   /* Enables our standard set of messages */
   bool EnableMsgs();
-  /* Enables a message given a class, ID, and port */
-  bool EnableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
-  /* Disables a message given a class, ID, and port */
-  bool DisableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
   /* Data output */
   inline Fix fix() const {return fix_;}
   inline int8_t num_sv() const {return num_sv_;}
@@ -239,6 +223,10 @@ class Ubx {
   bool ParseMsg();
   /* Process nav data */
   void ProcessNavData();
+  /* Enables a message given a class, ID, and port */
+  bool EnableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
+  /* Disables a message given a class, ID, and port */
+  bool DisableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
   /* Communication */
   HardwareSerial* bus_;
   /* Potential baudrates */
