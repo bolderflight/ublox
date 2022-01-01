@@ -28,7 +28,7 @@
 
 #include <cstdint>
 #include <cstddef>
-#include "ubx_defs.h"
+#include "ubx_defs.h"  // NOLINT
 
 namespace bfs {
 /*

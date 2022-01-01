@@ -72,4 +72,4 @@ static constexpr uint8_t UBX_COM_PROT_RTCM3_ = 0x08;
 
 }  // namespace bfs
 
-#endif  // SRC_UBLOX_DEFS_H_
+#endif  // SRC_UBX_DEFS_H_

@@ -30,21 +30,20 @@
 #endif
 #include <cstddef>
 #include <cstdint>
-#include "eigen.h"
-#include "ubx.h"
-#include "ubx_ack.h"
-#include "ubx_cfg.h"
-#include "ubx_defs.h"
-#include "ubx_inf.h"
-#include "ubx_keys.h"
-#include "ubx_log.h"
-#include "ubx_mga.h"
-#include "ubx_mon.h"
-#include "ubx_nav.h"
-#include "ubx_rxm.h"
-#include "ubx_sec.h"
-#include "ubx_time.h"
-#include "ubx_upd.h"
+#include "eigen.h"  // NOLINT
+#include "ubx.h"  // NOLINT
+#include "ubx_ack.h"  // NOLINT
+#include "ubx_cfg.h"  // NOLINT
+#include "ubx_defs.h"  // NOLINT
+#include "ubx_inf.h"  // NOLINT
+#include "ubx_log.h"  // NOLINT
+#include "ubx_mga.h"  // NOLINT
+#include "ubx_mon.h"  // NOLINT
+#include "ubx_nav.h"  // NOLINT
+#include "ubx_rxm.h"  // NOLINT
+#include "ubx_sec.h"  // NOLINT
+#include "ubx_time.h"  // NOLINT
+#include "ubx_upd.h"  // NOLINT
 
 namespace bfs {
 
@@ -226,7 +225,8 @@ void Ubx::ProcessNavData() {
   /* Ground track and speed */
   gnd_spd_mps_ = static_cast<float>(ubx_nav_pvt_.payload.g_speed) / 1000.0f;
   track_deg_ = static_cast<float>(ubx_nav_pvt_.payload.head_mot) / 100000.0f;
-  track_acc_deg_ = static_cast<float>(ubx_nav_pvt_.payload.head_acc) / 100000.0f;
+  track_acc_deg_ = static_cast<float>(ubx_nav_pvt_.payload.head_acc) /
+                   100000.0f;
   /* LLH position */
   invalid_llh_ = ubx_nav_pvt_.payload.flags3 & 0x01;
   if (!invalid_llh_) {

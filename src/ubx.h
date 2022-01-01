@@ -33,20 +33,20 @@
 #endif
 #include <cstddef>
 #include <cstdint>
-#include "eigen.h"
-#include "ubx_ack.h"
-#include "ubx_cfg.h"
-#include "ubx_defs.h"
-#include "ubx_inf.h"
-#include "ubx_keys.h"
-#include "ubx_log.h"
-#include "ubx_mga.h"
-#include "ubx_mon.h"
-#include "ubx_nav.h"
-#include "ubx_rxm.h"
-#include "ubx_sec.h"
-#include "ubx_time.h"
-#include "ubx_upd.h"
+#include "eigen.h"  // NOLINT
+#include "units.h"  // NOLINT
+#include "ubx_ack.h"  // NOLINT
+#include "ubx_cfg.h"  // NOLINT
+#include "ubx_defs.h"  // NOLINT
+#include "ubx_inf.h"  // NOLINT
+#include "ubx_log.h"  // NOLINT
+#include "ubx_mga.h"  // NOLINT
+#include "ubx_mon.h"  // NOLINT
+#include "ubx_nav.h"  // NOLINT
+#include "ubx_rxm.h"  // NOLINT
+#include "ubx_sec.h"  // NOLINT
+#include "ubx_time.h"  // NOLINT
+#include "ubx_upd.h"  // NOLINT
 
 namespace bfs {
 
@@ -112,6 +112,60 @@ class Ubx {
   bool EnableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
   /* Disables a message given a class, ID, and port */
   bool DisableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
+  /* Data output */
+  inline Fix fix() const {return fix_;}
+  inline int8_t num_sv() const {return num_sv_;}
+  inline int16_t utc_year() const {return year_;}
+  inline int8_t utc_month() const {return month_;}
+  inline int8_t utc_day() const {return day_;}
+  inline int8_t utc_hour() const {return hour_;}
+  inline int8_t utc_min() const {return min_;}
+  inline int8_t utc_sec() const {return sec_;}
+  inline int32_t utc_nano() const {return nano_;}
+  inline int32_t gps_tow_ms() const {return tow_ms_;}
+  inline uint32_t time_acc_ns() const {return t_acc_ns_;}
+  inline Eigen::Vector3f ned_vel_mps() const {return ned_vel_mps_;}
+  inline float north_vel_mps() const {return ned_vel_mps_[0];}
+  inline float east_vel_mps() const {return ned_vel_mps_[1];}
+  inline float down_vel_mps() const {return ned_vel_mps_[2];}
+  inline float gnd_spd_mps() const {return gnd_spd_mps_;}
+  inline Eigen::Vector3f ecef_vel_mps() const {return ecef_vel_mps_;}
+  inline float ecef_vel_x_mps() const {return ecef_vel_mps_[0];}
+  inline float ecef_vel_y_mps() const {return ecef_vel_mps_[1];}
+  inline float ecef_vel_z_mps() const {return ecef_vel_mps_[2];}
+  inline float spd_acc_mps() const {return s_acc_mps_;}
+  inline float track_deg() const {return track_deg_;}
+  inline float track_rad() const {return deg2rad(track_deg_);}
+  inline float track_acc_deg() const {return track_acc_deg_;}
+  inline float track_acc_rad() const {return deg2rad(track_acc_deg_);}
+  inline Eigen::Vector3d llh_deg_m() const {return llh_;}
+  inline Eigen::Vector3d llh_rad_m() const {
+    Eigen::Vector3d ret;
+    ret[0] = deg2rad(llh_[0]);
+    ret[1] = deg2rad(llh_[1]);
+    ret[2] = llh_[2];
+    return ret;
+  }
+  inline double lat_deg() const {return llh_[0];}
+  inline double lat_rad() const {return deg2rad(llh_[0]);}
+  inline double lon_deg() const {return llh_[1];}
+  inline double lon_rad() const {return deg2rad(llh_[1]);}
+  inline float alt_wgs84_m() const {return static_cast<float>(llh_[2]);}
+  inline float alt_msl_m() const {return alt_msl_m_;}
+  inline float horz_acc_m() const {return h_acc_m_;}
+  inline float vert_acc_m() const {return v_acc_m_;}
+  inline Eigen::Vector3d ecef_pos_m() const {return ecef_m_;}
+  inline double ecef_pos_x_m() const {return ecef_m_[0];}
+  inline double ecef_pos_y_m() const {return ecef_m_[1];}
+  inline double ecef_pos_z_m() const {return ecef_m_[2];}
+  inline float ecef_pos_acc_m() const {return p_acc_m_;}
+  inline float gdop() const {return gdop_;}
+  inline float pdop() const {return pdop_;}
+  inline float tdop() const {return tdop_;}
+  inline float vdop() const {return vdop_;}
+  inline float hdop() const {return hdop_;}
+  inline float ndop() const {return ndop_;}
+  inline float edop() const {return edop_;}
 
  private:
   /* Send a message to the uBlox */
@@ -184,7 +238,7 @@ class Ubx {
   /* Parse messages, return true on valid msg received */
   bool ParseMsg();
   /* Process nav data */
-  void ProcessNavData(); 
+  void ProcessNavData();
   /* Communication */
   HardwareSerial* bus_;
   /* Potential baudrates */
@@ -221,8 +275,8 @@ class Ubx {
   bool invalid_llh_, invalid_ecef_;
   int8_t carr_soln_;
   int8_t num_sv_;
-  int8_t year_, month_, day_, hour_, min_, sec_;
-  int16_t week_;
+  int8_t month_, day_, hour_, min_, sec_;
+  int16_t year_;
   int32_t nano_;
   int32_t tow_ms_;
   uint32_t t_acc_ns_;

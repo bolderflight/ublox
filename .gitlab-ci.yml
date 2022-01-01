@@ -12,7 +12,6 @@ Lint:
     - cpplint --verbose=0 src/ubx_cfg.h
     - cpplint --verbose=0 src/ubx_defs.h
     - cpplint --verbose=0 src/ubx_inf.h
-    - cpplint --verbose=0 src/ubx_keys.h
     - cpplint --verbose=0 src/ubx_log.h
     - cpplint --verbose=0 src/ubx_mga.h
     - cpplint --verbose=0 src/ubx_mon.h

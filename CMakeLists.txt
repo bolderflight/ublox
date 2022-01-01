@@ -48,7 +48,6 @@ if (DEFINED MCU)
     src/ubx_cfg.h
     src/ubx_defs.h
     src/ubx_inf.h
-    src/ubx_keys.h
     src/ubx_log.h
     src/ubx_mga.h
     src/ubx_mon.h
