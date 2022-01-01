@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.0.1
+- Fixing issue with linker in versions older than C++17
+
 ## v4.0.0
 - Merging ublox and ublox-arduino
 - Using mcu_support repo for CMake builds

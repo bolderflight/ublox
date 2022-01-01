@@ -47,6 +47,26 @@
 
 namespace bfs {
 
+constexpr uint8_t Ubx::UBX_HEADER_[];
+constexpr uint8_t UbxCfgCfg::cls;
+constexpr uint8_t UbxCfgCfg::id;
+constexpr uint16_t UbxCfgCfg::len;
+constexpr uint8_t UbxCfgMsg::cls;
+constexpr uint8_t UbxCfgMsg::id;
+constexpr uint16_t UbxCfgMsg::len;
+constexpr uint8_t UbxCfgPrtReq::cls;
+constexpr uint8_t UbxCfgPrtReq::id;
+constexpr uint16_t UbxCfgPrtReq::len;
+constexpr uint8_t UbxCfgPrt::cls;
+constexpr uint8_t UbxCfgPrt::id;
+constexpr uint16_t UbxCfgPrt::len;
+constexpr uint8_t UbxCfgRate::cls;
+constexpr uint8_t UbxCfgRate::id;
+constexpr uint16_t UbxCfgRate::len;
+constexpr uint8_t UbxCfgNav5::cls;
+constexpr uint8_t UbxCfgNav5::id;
+constexpr uint16_t UbxCfgNav5::len;
+
 bool Ubx::AutoBegin() {
   /* Find the baud rate */
   if (AutoBaud() < 0) {return false;}
