@@ -215,16 +215,22 @@ class Ubx {
   /* Data members */
   bool eoe_ = false;
   Fix fix_;
+  bool gnss_fix_ok_, diff_soln_;
+  bool valid_date_, valid_time_, fully_resolved_, validity_confirmed_;
+  bool confirmed_date_, confirmed_time_, valid_time_and_date_;
+  bool invalid_llh_, invalid_ecef_;
+  int8_t carr_soln_;
   int8_t num_sv_;
+  int8_t year_, month_, day_, hour_, min_, sec_;
   int16_t week_;
+  int32_t nano_;
   int32_t tow_ms_;
-  float alt_wgs84_m_;
+  uint32_t t_acc_ns_;
   float alt_msl_m_;
-  float spd_mps_;
   float gnd_spd_mps_;
   float track_deg_;
-  float gdop, pdop, tdop, vdop, hdop, ndop, edop;
-  float h_acc_, v_acc_, p_acc_, track_acc_;
+  float gdop_, pdop_, tdop_, vdop_, hdop_, ndop_, edop_;
+  float h_acc_m_, v_acc_m_, p_acc_m_, track_acc_deg_, s_acc_mps_;
   Eigen::Vector3f ecef_vel_mps_;
   Eigen::Vector3f ned_vel_mps_;
   Eigen::Vector3d ecef_m_;
@@ -279,19 +285,15 @@ class Ubx {
   UbxCfgMsg ubx_cfg_msg_;
   UbxCfgNav5 ubx_cfg_nav5_;
   UbxCfgCfg ubx_cfg_cfg_;
-  /* Data */
+  /* Data messages */
   UbxNavDop ubx_nav_dop_;
   UbxNavEoe ubx_nav_eoe_;
   UbxNavHpposecef ubx_nav_hp_pos_ecef_;
   UbxNavHpposllh ubx_nav_hp_pos_llh_;
   UbxNavPosecef ubx_nav_pos_ecef_;
-  UbxNavPosllh ubx_nav_pos_llh_;
   UbxNavRelposned ubx_nav_rel_pos_ned_;
-  UbxNavStatus ubx_nav_status_;
-  UbxNavTimels ubx_nav_time_ls_;
-  UbxNavTimeutc ubx_nav_time_utc_;
   UbxNavVelecef ubx_nav_vel_ecef_;
-  UbxNavVelned ubx_nav_vel_ned_;
+  UbxNavPvt ubx_nav_pvt_;
 };
 
 }  // namespace bfs
