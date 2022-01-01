@@ -173,7 +173,11 @@ The most recent valid packet is stored in the Ubx object. Data fields can be ret
 
 **int32_t utc_nano()** UTC nanoseconds.
 
-**int32_t gps_tow_ms()** GPS time of week, ms.
+**double gps_tow_s()** GPS time of week, s.
+
+**int16_t week()** GPS week number.
+
+**int8_t leap_s()** Leap seconds (GPS-UTC).
 
 **uint32_t time_acc_ns()** Estimated time accuracy, ns.
 

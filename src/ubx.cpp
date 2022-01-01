@@ -117,6 +117,12 @@ bool Ubx::Read() {
             }
             break;
           }
+          case UBX_NAV_TIMEGPS_ID_: {
+            if (rx_msg_.len == ubx_nav_time_gps_.len) {
+              memcpy(&ubx_nav_time_gps_.payload, rx_msg_.payload, rx_msg_.len);
+            }
+            break;
+          }
           case UBX_NAV_EOE_ID_: {
             if (rx_msg_.len == ubx_nav_eoe_.len) {
               memcpy(&ubx_nav_eoe_.payload, rx_msg_.payload, rx_msg_.len);
@@ -183,7 +189,6 @@ void Ubx::ProcessNavData() {
                          validity_confirmed_ && confirmed_date_ &&
                          confirmed_time_;
   if (valid_time_and_date_) {
-    tow_ms_ = ubx_nav_pvt_.payload.i_tow;
     year_ = ubx_nav_pvt_.payload.year;
     month_ = ubx_nav_pvt_.payload.month;
     day_ = ubx_nav_pvt_.payload.day;
@@ -192,7 +197,6 @@ void Ubx::ProcessNavData() {
     sec_ = ubx_nav_pvt_.payload.sec;
     nano_ = ubx_nav_pvt_.payload.nano;
   } else {
-    tow_ms_ = 0;
     year_ = 0;
     month_ = 0;
     day_ = 0;
@@ -202,6 +206,26 @@ void Ubx::ProcessNavData() {
     nano_ = 0;
   }
   t_acc_ns_ = ubx_nav_pvt_.payload.t_acc;
+  /* GPS time */
+  tow_valid_ = ubx_nav_time_gps_.payload.valid & 0x01;
+  week_valid_ = ubx_nav_time_gps_.payload.valid & 0x02;
+  leap_valid_ = ubx_nav_time_gps_.payload.valid & 0x04;
+  if (tow_valid_) {
+    tow_s_ = static_cast<double>(ubx_nav_time_gps_.payload.i_tow) * 1e-3 +
+             static_cast<double>(ubx_nav_time_gps_.payload.f_tow) * 1e-9;
+  } else {
+    tow_s_ = 0;
+  }
+  if (week_valid_) {
+    week_ = ubx_nav_time_gps_.payload.week;
+  } else {
+    week_ = 0;
+  }
+  if (leap_valid_) {
+    leap_s_ = ubx_nav_time_gps_.payload.leap_s;
+  } else {
+    leap_s_ = 0;
+  }
   /* DOP */
   gdop_ = static_cast<float>(ubx_nav_dop_.payload.g_dop) * 0.01f;
   pdop_ = static_cast<float>(ubx_nav_dop_.payload.p_dop) * 0.01f;
@@ -374,6 +398,9 @@ bool Ubx::EnableMsgs() {
     use_hp_pos_ = true;
   }
   if (!EnableMsg(UBX_NAV_CLS_, UBX_NAV_EOE_ID_, UBX_COM_PORT_UART1_)) {
+    return false;
+  }
+  if (!EnableMsg(UBX_NAV_CLS_, UBX_NAV_TIMEGPS_ID_, UBX_COM_PORT_UART1_)) {
     return false;
   }
   return true;

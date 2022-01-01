@@ -106,7 +106,9 @@ class Ubx {
   inline int8_t utc_min() const {return min_;}
   inline int8_t utc_sec() const {return sec_;}
   inline int32_t utc_nano() const {return nano_;}
-  inline int32_t gps_tow_ms() const {return tow_ms_;}
+  inline double gps_tow_s() const {return tow_s_;}
+  inline int16_t gps_week() const {return week_;}
+  inline int8_t leap_s() const {return leap_s_;}
   inline uint32_t time_acc_ns() const {return t_acc_ns_;}
   inline Eigen::Vector3f ned_vel_mps() const {return ned_vel_mps_;}
   inline float north_vel_mps() const {return ned_vel_mps_[0];}
@@ -259,20 +261,23 @@ class Ubx {
   Fix fix_;
   bool gnss_fix_ok_, diff_soln_;
   bool valid_date_, valid_time_, fully_resolved_, validity_confirmed_;
+  bool tow_valid_, week_valid_, leap_valid_;
   bool confirmed_date_, confirmed_time_, valid_time_and_date_;
   bool invalid_llh_, invalid_ecef_;
   int8_t carr_soln_;
   int8_t num_sv_;
   int8_t month_, day_, hour_, min_, sec_;
+  int8_t leap_s_;
   int16_t year_;
+  int16_t week_;
   int32_t nano_;
-  int32_t tow_ms_;
   uint32_t t_acc_ns_;
   float alt_msl_m_;
   float gnd_spd_mps_;
   float track_deg_;
   float gdop_, pdop_, tdop_, vdop_, hdop_, ndop_, edop_;
   float h_acc_m_, v_acc_m_, p_acc_m_, track_acc_deg_, s_acc_mps_;
+  double tow_s_;
   Eigen::Vector3f ecef_vel_mps_;
   Eigen::Vector3f ned_vel_mps_;
   Eigen::Vector3d ecef_m_;
@@ -336,6 +341,7 @@ class Ubx {
   UbxNavRelposned ubx_nav_rel_pos_ned_;
   UbxNavVelecef ubx_nav_vel_ecef_;
   UbxNavPvt ubx_nav_pvt_;
+  UbxNavTimegps ubx_nav_time_gps_;
 };
 
 }  // namespace bfs

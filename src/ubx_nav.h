@@ -57,6 +57,7 @@ static constexpr uint8_t UBX_NAV_SVIN_ID_ = 0x3b;
 static constexpr uint8_t UBX_NAV_TIMEBDS_ID_ = 0x24;
 static constexpr uint8_t UBX_NAV_TIMEGAL_ID_ = 0x25;
 static constexpr uint8_t UBX_NAV_TIMEGLO_ID_ = 0x23;
+static constexpr uint8_t UBX_NAV_TIMEGPS_ID_ = 0x20;
 static constexpr uint8_t UBX_NAV_TIMELS_ID_ = 0x26;
 static constexpr uint8_t UBX_NAV_TIMEQZSS_ID_ = 0x27;
 static constexpr uint8_t UBX_NAV_TIMEUTC_ID_ = 0x21;
@@ -459,6 +460,19 @@ struct UbxNavTimeglo {
     U1 n4;          // Four year interval number
     X1 valid;       // Validity flags
     U4 t_acc;       // Time accuracy estimate, ns
+  } payload;
+};
+struct UbxNavTimegps {
+  static constexpr uint8_t cls = UBX_NAV_CLS_;
+  static constexpr uint8_t id = UBX_NAV_TIMEGPS_ID_;
+  static constexpr uint16_t len = 16;
+  struct {
+    U4 i_tow;   // GPS time of week, ms
+    I4 f_tow;   // Fractional part of TOW, ns
+    I2 week;    // GPS week number
+    I1 leap_s;  // GPS leap seconds
+    X1 valid;   // Validity flags
+    U4 t_acc;   // Time accuracy estimate, ns
   } payload;
 };
 struct UbxNavTimels {

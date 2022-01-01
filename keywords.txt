@@ -37,7 +37,9 @@ utc_hour	KEYWORD2
 utc_min	KEYWORD2
 utc_sec	KEYWORD2
 utc_nano	KEYWORD2
-gps_tow_ms	KEYWORD2
+gps_tow_s	KEYWORD2
+gps_week	KEYWORD2
+leap_s	KEYWORD2
 time_acc_ns	KEYWORD2
 ned_vel_mps	KEYWORD2
 north_vel_mps	KEYWORD2
