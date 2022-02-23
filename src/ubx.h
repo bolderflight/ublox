@@ -112,22 +112,32 @@ class Ubx {
   inline float ndop() const {return ndop_;}
   inline float edop() const {return edop_;}
   /* Relative position data */
-  // XXX REL POS FLAGS
-  bool rel_pos_avail() const {}
-  inline double rel_pos_north_m() const {}
-  inline double rel_pos_east_m() const {}
-  inline double rel_pos_down_m() const {}
-  inline Eigen::Vector3d rel_pos_ned_m() const {}
-  inline double rel_pos_acc_north_m() const {}
-  inline double rel_pos_acc_east_m() const {}
-  inline double rel_pos_acc_down_m() const {}
-  inline Eigen::Vector3d rel_pos_acc_ned_m() const {}
-  inline double rel_pos_len_m() const {}
-  inline double rel_pos_len_acc_m() const {}
-  inline float rel_pos_heading_deg() const {}
-  inline float rel_pos_heading_acc_deg() const {}
-  inline float rel_pos_heading_rad() const {}
-  inline float rel_pos_heading_acc_rad() const {}
+  inline bool rel_pos_avail() const {return rel_pos_avail_;}
+  inline bool rel_pos_moving_baseline() const {return rel_pos_moving_baseline_;}
+  inline bool rel_pos_ref_pos_miss() const {return rel_pos_ref_pos_miss_;}
+  inline bool rel_pos_ref_obs_miss() const {return rel_pos_ref_obs_miss_;}
+  inline bool rel_pos_heading_valid() const {return rel_pos_heading_valid_;}
+  inline bool rel_pos_normalized() const {return rel_pos_norm_;}
+  inline double rel_pos_north_m() const {return rel_pos_ned_m_[0];}
+  inline double rel_pos_east_m() const {return rel_pos_ned_m_[1];}
+  inline double rel_pos_down_m() const {return rel_pos_ned_m_[2];}
+  inline Eigen::Vector3d rel_pos_ned_m() const {return rel_pos_ned_m_;}
+  inline float rel_pos_acc_north_m() const {return rel_pos_ned_acc_m_[0];}
+  inline float rel_pos_acc_east_m() const {return rel_pos_ned_acc_m_[1];}
+  inline float rel_pos_acc_down_m() const {return rel_pos_ned_acc_m_[2];}
+  inline Eigen::Vector3f rel_pos_acc_ned_m() const {return rel_pos_ned_acc_m_;}
+  inline double rel_pos_len_m() const {return rel_pos_len_m_;}
+  inline float rel_pos_len_acc_m() const {return rel_pos_len_acc_m_;}
+  inline float rel_pos_heading_deg() const {return rel_pos_heading_deg_;}
+  inline float rel_pos_heading_acc_deg() const {
+    return rel_pos_heading_acc_deg_;
+  }
+  inline float rel_pos_heading_rad() const {
+    return deg2rad(rel_pos_heading_deg_);
+  }
+  inline float rel_pos_heading_acc_rad() const {
+    return deg2rad(rel_pos_heading_acc_deg_);
+  }
 
  private:
   /* Parse messages, return true on valid msg received */
@@ -161,6 +171,12 @@ class Ubx {
   bool tow_valid_, week_valid_, leap_valid_;
   bool confirmed_date_, confirmed_time_, valid_time_and_date_;
   bool invalid_llh_, invalid_ecef_;
+  bool rel_pos_avail_ = false;
+  bool rel_pos_moving_baseline_ = false;
+  bool rel_pos_ref_pos_miss_ = false;
+  bool rel_pos_ref_obs_miss_ = false;
+  bool rel_pos_heading_valid_ = false;
+  bool rel_pos_norm_ = false;
   int8_t carr_soln_;
   int8_t num_sv_;
   int8_t month_, day_, hour_, min_, sec_;
