@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.1.0
+- Added relative position output to support GNSS RTK and GNSS yaw
+
 ## v4.0.1
 - Fixing issue with linker in versions older than C++17
 

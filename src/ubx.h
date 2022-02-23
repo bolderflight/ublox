@@ -35,18 +35,8 @@
 #include <cstdint>
 #include "eigen.h"  // NOLINT
 #include "units.h"  // NOLINT
-#include "ubx_ack.h"  // NOLINT
-#include "ubx_cfg.h"  // NOLINT
 #include "ubx_defs.h"  // NOLINT
-#include "ubx_inf.h"  // NOLINT
-#include "ubx_log.h"  // NOLINT
-#include "ubx_mga.h"  // NOLINT
-#include "ubx_mon.h"  // NOLINT
 #include "ubx_nav.h"  // NOLINT
-#include "ubx_rxm.h"  // NOLINT
-#include "ubx_sec.h"  // NOLINT
-#include "ubx_time.h"  // NOLINT
-#include "ubx_upd.h"  // NOLINT
 
 namespace bfs {
 
@@ -60,42 +50,11 @@ class Ubx {
     FIX_RTK_FLOAT = 4,
     FIX_RTK_FIXED = 5
   };
-  enum DynMdl : uint8_t {
-    DYN_MDL_PORTABLE = 0,
-    DYN_MDL_STATIONARY = 2,
-    DYN_MDL_PEDESTRIAN = 3,
-    DYN_MDL_AUTOMOTIVE = 4,
-    DYN_MDL_SEA = 5,
-    DYN_MDL_AIRBORNE_1G = 6,
-    DYN_MDL_AIRBORNE_2G = 7,
-    DYN_MDL_AIRBORNE_4G = 8,
-    DYN_MDL_WRIST = 9,
-    DYN_MDL_BIKE = 10
-  };
   explicit Ubx(HardwareSerial* bus) : bus_(bus) {}
-  /* Automatically finds the baud rate and configures the receiver */
-  bool AutoBegin();
-  /* Reads NAV data and returns true on EOE */
-  bool Read();
-  /* Set the receiver dynamic model */
-  bool SetDynModel(const DynMdl mdl);
   /* Standard begin, set the baud and test for comms */
   bool Begin(const int32_t baud);
-  /* Restore factory default config */
-  void SetFactoryDefaults();
-  /* Sets the nav solution rate */
-  bool SetRate(const uint16_t period_ms);
-  /* Tests for good communication */
-  bool TestComms();
-  /* Automatically figures out the baud rate of the receiver */
-  int32_t AutoBaud();
-  /* Sets the baud rate of the receiver */
-  bool SetBaud(const uint8_t port, const uint32_t baud);
-  /* Configures the port input & output protocols */
-  bool ConfigPort(const uint8_t port, const uint8_t in_prot,
-                  const uint8_t out_prot);
-  /* Enables our standard set of messages */
-  bool EnableMsgs();
+  /* Reads NAV data and returns true on EOE */
+  bool Read();
   /* Data output */
   inline Fix fix() const {return fix_;}
   inline int8_t num_sv() const {return num_sv_;}
@@ -152,98 +111,36 @@ class Ubx {
   inline float hdop() const {return hdop_;}
   inline float ndop() const {return ndop_;}
   inline float edop() const {return edop_;}
+  /* Relative position data */
+  // XXX REL POS FLAGS
+  bool rel_pos_avail() const {}
+  inline double rel_pos_north_m() const {}
+  inline double rel_pos_east_m() const {}
+  inline double rel_pos_down_m() const {}
+  inline Eigen::Vector3d rel_pos_ned_m() const {}
+  inline double rel_pos_acc_north_m() const {}
+  inline double rel_pos_acc_east_m() const {}
+  inline double rel_pos_acc_down_m() const {}
+  inline Eigen::Vector3d rel_pos_acc_ned_m() const {}
+  inline double rel_pos_len_m() const {}
+  inline double rel_pos_len_acc_m() const {}
+  inline float rel_pos_heading_deg() const {}
+  inline float rel_pos_heading_acc_deg() const {}
+  inline float rel_pos_heading_rad() const {}
+  inline float rel_pos_heading_acc_rad() const {}
 
  private:
-  /* Send a message to the uBlox */
-  template<typename T>
-  void SendMsg(const T &ref) {
-    /* Write the header */
-    bus_->write(UBX_HEADER_[0]);
-    bus_->write(UBX_HEADER_[1]);
-    /* Write the class and start computing the checksum */
-    bus_->write(ref.cls);
-    chksum_tx_.Compute(&ref.cls, sizeof(ref.cls));
-    /* Write the ID and update the checksum */
-    bus_->write(ref.id);
-    chksum_tx_.Update(&ref.id, sizeof(ref.id));
-    /* Write the length and updated the checksum */
-    bus_->write(static_cast<uint8_t>(ref.len & 0xFF));
-    bus_->write(static_cast<uint8_t>(ref.len >> 8 & 0xFF));
-    chksum_tx_.Update(reinterpret_cast<const uint8_t *>(&ref.len), 2);
-    /* Write the payload and finish computing the checksum */
-    bus_->write(reinterpret_cast<const uint8_t *>(&ref.payload), ref.len);
-    chk_cmp_tx_ =
-              chksum_tx_.Update(reinterpret_cast<const uint8_t *>(&ref.payload),
-                                ref.len);
-    /* Write the checksum */
-    bus_->write(static_cast<uint8_t>(chk_cmp_tx_ & 0xFF));
-    bus_->write(static_cast<uint8_t>(chk_cmp_tx_ >> 8 & 0xFF));
-  }
-  /* Send a message and look for a response */
-  template<typename T>
-  bool SendResponse(const T &ref, const uint8_t cls, const uint8_t id,
-                    const uint16_t timeout_ms) {
-    elapsedMillis fun_t_ms;
-    do {
-      SendMsg(ref);
-      elapsedMillis t_ms;
-      while (t_ms < TIMEOUT_MS_) {
-        if (ParseMsg()) {
-          if ((rx_msg_.cls == cls) && (rx_msg_.id == id)) {
-            return true;
-          }
-        }
-      }
-    } while (fun_t_ms < timeout_ms);
-    return false;
-  }
-  /* Send a message and look for an ACK */
-  template<typename T>
-  bool SendAck(const T &ref, const uint16_t timeout_ms) {
-    elapsedMillis fun_t_ms;
-    do {
-      SendMsg(ref);
-      elapsedMillis t_ms;
-      while (t_ms < TIMEOUT_MS_) {
-        if (ParseMsg()) {
-          if (rx_msg_.cls == UBX_ACK_CLS_) {
-            if ((rx_msg_.payload[0] == ref.cls) &&
-                (rx_msg_.payload[1] == ref.id)) {
-              if (rx_msg_.id == UBX_ACK_ACK_ID_) {
-                return true;
-              } else {
-                return false;
-              }
-            }
-          }
-        }
-      }
-    } while (fun_t_ms < timeout_ms);
-    return false;
-  }
   /* Parse messages, return true on valid msg received */
   bool ParseMsg();
   /* Process nav data */
   void ProcessNavData();
-  /* Enables a message given a class, ID, and port */
-  bool EnableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
-  /* Disables a message given a class, ID, and port */
-  bool DisableMsg(const uint8_t cls, const uint8_t id, const uint8_t port);
   /* Communication */
   HardwareSerial* bus_;
-  /* Potential baudrates */
-  int32_t baud_rates_[8] = {38400, 9600, 19200, 57600, 115200, 230400, 460800,
-                            921600};
-  static constexpr int32_t DESIRED_BAUD_ = 460800;
-  int32_t baud_;
-  /* Configuration */
-  uint16_t SAMPLE_PERIOD_MS_ = 100;
+  elapsedMillis t_ms_;
+  static const uint32_t COMM_TIMEOUT_MS_ = 10000;
   bool use_hp_pos_ = false;
   /* Max payload bytes supported */
   static constexpr std::size_t UBX_MAX_PAYLOAD_ = 1024;
-  /* Timeout for waiting for response */
-  static constexpr uint16_t TIMEOUT_MS_ = 1000;
-  static constexpr uint16_t LONG_TIMEOUT_MS_ = 5000;
   /* Parsing */
   static constexpr uint8_t UBX_HEADER_[2] = {0xB5, 0x62};
   static constexpr uint8_t UBX_CLS_POS_ = 2;
@@ -277,11 +174,17 @@ class Ubx {
   float track_deg_;
   float gdop_, pdop_, tdop_, vdop_, hdop_, ndop_, edop_;
   float h_acc_m_, v_acc_m_, p_acc_m_, track_acc_deg_, s_acc_mps_;
+  float rel_pos_heading_deg_;
+  float rel_pos_heading_acc_deg_;
+  float rel_pos_len_acc_m_;
+  double rel_pos_len_m_;
   double tow_s_;
   Eigen::Vector3f ecef_vel_mps_;
   Eigen::Vector3f ned_vel_mps_;
+  Eigen::Vector3f rel_pos_ned_acc_m_;
   Eigen::Vector3d ecef_m_;
   Eigen::Vector3d llh_;
+  Eigen::Vector3d rel_pos_ned_m_;
   /* Class to compute UBX checksum */
   class Checksum {
    public:
@@ -318,20 +221,6 @@ class Ubx {
     uint16_t len;
     uint8_t payload[UBX_MAX_PAYLOAD_];
   } rx_msg_;
-  /* struct for polling messages that don't have specific request messages */
-  struct UbxReq {
-    uint8_t cls;
-    uint8_t id;
-    uint16_t len = 0;
-    uint8_t payload;
-  } req_msg_;
-  /* Config messages */
-  UbxCfgPrtReq ubx_cfg_prt_req_;
-  UbxCfgPrt ubx_cfg_prt_;
-  UbxCfgRate ubx_cfg_rate_;
-  UbxCfgMsg ubx_cfg_msg_;
-  UbxCfgNav5 ubx_cfg_nav5_;
-  UbxCfgCfg ubx_cfg_cfg_;
   /* Data messages */
   UbxNavDop ubx_nav_dop_;
   UbxNavEoe ubx_nav_eoe_;

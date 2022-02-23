@@ -32,67 +32,23 @@
 #include <cstdint>
 #include "eigen.h"  // NOLINT
 #include "ubx.h"  // NOLINT
-#include "ubx_ack.h"  // NOLINT
-#include "ubx_cfg.h"  // NOLINT
 #include "ubx_defs.h"  // NOLINT
-#include "ubx_inf.h"  // NOLINT
-#include "ubx_log.h"  // NOLINT
-#include "ubx_mga.h"  // NOLINT
-#include "ubx_mon.h"  // NOLINT
 #include "ubx_nav.h"  // NOLINT
-#include "ubx_rxm.h"  // NOLINT
-#include "ubx_sec.h"  // NOLINT
-#include "ubx_time.h"  // NOLINT
-#include "ubx_upd.h"  // NOLINT
 
 namespace bfs {
 
 constexpr uint8_t Ubx::UBX_HEADER_[];
-constexpr uint8_t UbxCfgCfg::cls;
-constexpr uint8_t UbxCfgCfg::id;
-constexpr uint16_t UbxCfgCfg::len;
-constexpr uint8_t UbxCfgMsg::cls;
-constexpr uint8_t UbxCfgMsg::id;
-constexpr uint16_t UbxCfgMsg::len;
-constexpr uint8_t UbxCfgPrtReq::cls;
-constexpr uint8_t UbxCfgPrtReq::id;
-constexpr uint16_t UbxCfgPrtReq::len;
-constexpr uint8_t UbxCfgPrt::cls;
-constexpr uint8_t UbxCfgPrt::id;
-constexpr uint16_t UbxCfgPrt::len;
-constexpr uint8_t UbxCfgRate::cls;
-constexpr uint8_t UbxCfgRate::id;
-constexpr uint16_t UbxCfgRate::len;
-constexpr uint8_t UbxCfgNav5::cls;
-constexpr uint8_t UbxCfgNav5::id;
-constexpr uint16_t UbxCfgNav5::len;
 
-bool Ubx::AutoBegin() {
-  /* Find the baud rate */
-  if (AutoBaud() < 0) {return false;}
-  /* Restore the factory defaults */
-  SetFactoryDefaults();
-  /* Find the baud rate again */
-  if (AutoBaud() < 0) {return false;}
-  /* Update the baud rate */
-  if (!SetBaud(UBX_COM_PORT_UART1_, DESIRED_BAUD_)) {return false;}
-  Begin(DESIRED_BAUD_);
-  /* Disable NMEA messages */
-  if (!ConfigPort(UBX_COM_PORT_UART1_, UBX_COM_PROT_UBX_, UBX_COM_PROT_UBX_)) {
-    return false;
-  }
-  /* Set the message output rate */
-  if (!SetRate(SAMPLE_PERIOD_MS_)) {return false;}
-  /* Set the dynamic model */
-  if (!SetDynModel(DYN_MDL_AIRBORNE_4G)) {return false;}
-  /* Enable UBX messages */
-  if (!EnableMsgs()) {return false;}
-  return true;
-}
 bool Ubx::Begin(int32_t baud) {
   bus_->end();
   bus_->begin(baud);
-  return TestComms();
+  bus_->flush();
+  t_ms_ = 0;
+  while (t_ms_ < COMM_TIMEOUT_MS_)
+    if (ParseMsg()) {
+      return true;
+    }
+  return false;
 }
 bool Ubx::Read() {
   while (bus_->available()) {
@@ -127,6 +83,7 @@ bool Ubx::Read() {
             if (rx_msg_.len == ubx_nav_hp_pos_ecef_.len) {
               memcpy(&ubx_nav_hp_pos_ecef_.payload, rx_msg_.payload,
                      rx_msg_.len);
+              use_hp_pos_ = true;
             }
             break;
           }
@@ -134,12 +91,20 @@ bool Ubx::Read() {
             if (rx_msg_.len == ubx_nav_hp_pos_llh_.len) {
               memcpy(&ubx_nav_hp_pos_llh_.payload, rx_msg_.payload,
                      rx_msg_.len);
+              use_hp_pos_ = true;
             }
             break;
           }
           case UBX_NAV_TIMEGPS_ID_: {
             if (rx_msg_.len == ubx_nav_time_gps_.len) {
               memcpy(&ubx_nav_time_gps_.payload, rx_msg_.payload, rx_msg_.len);
+            }
+            break;
+          }
+          case UBX_NAV_RELPOSNED_ID_: {
+            if (rx_msg_.len == ubx_nav_rel_pos_ned_.len) {
+              memcpy(&ubx_nav_rel_pos_ned_.payload, rx_msg_.payload,
+                     rx_msg_.len);
             }
             break;
           }
@@ -373,120 +338,6 @@ bool Ubx::ParseMsg() {
     }
   }
   return false;
-}
-void Ubx::SetFactoryDefaults() {
-  ubx_cfg_cfg_.payload.clear_mask = 0xFBFF;
-  ubx_cfg_cfg_.payload.save_mask = 0x00;
-  ubx_cfg_cfg_.payload.load_mask = 0xFFFF;
-  ubx_cfg_cfg_.payload.device_mask = 0x17;
-  SendMsg(ubx_cfg_cfg_);
-  delay(1000);
-}
-bool Ubx::EnableMsg(const uint8_t cls, const uint8_t id, const uint8_t port) {
-  ubx_cfg_msg_.payload.msg_class = cls;
-  ubx_cfg_msg_.payload.msg_id = id;
-  ubx_cfg_msg_.payload.rate[port] = 1;
-  return SendAck(ubx_cfg_msg_, LONG_TIMEOUT_MS_);
-}
-bool Ubx::DisableMsg(const uint8_t cls, const uint8_t id, const uint8_t port) {
-  ubx_cfg_msg_.payload.msg_class = cls;
-  ubx_cfg_msg_.payload.msg_id = id;
-  ubx_cfg_msg_.payload.rate[port] = 0;
-  return SendAck(ubx_cfg_msg_, LONG_TIMEOUT_MS_);
-}
-bool Ubx::EnableMsgs() {
-  if (!EnableMsg(UBX_NAV_CLS_, UBX_NAV_POSECEF_ID_, UBX_COM_PORT_UART1_)) {
-    return false;
-  }
-  if (!EnableMsg(UBX_NAV_CLS_, UBX_NAV_PVT_ID_, UBX_COM_PORT_UART1_)) {
-    return false;
-  }
-  if (!EnableMsg(UBX_NAV_CLS_, UBX_NAV_DOP_ID_, UBX_COM_PORT_UART1_)) {
-    return false;
-  }
-  if (!EnableMsg(UBX_NAV_CLS_, UBX_NAV_VELECEF_ID_, UBX_COM_PORT_UART1_)) {
-    return false;
-  }
-  if (!EnableMsg(UBX_NAV_CLS_, UBX_NAV_HPPOSECEF_ID_, UBX_COM_PORT_UART1_)) {
-    use_hp_pos_ = false;
-  } else {
-    use_hp_pos_ = true;
-  }
-  if (!EnableMsg(UBX_NAV_CLS_, UBX_NAV_HPPOSLLH_ID_, UBX_COM_PORT_UART1_)) {
-    use_hp_pos_ = false;
-  } else {
-    use_hp_pos_ = true;
-  }
-  if (!EnableMsg(UBX_NAV_CLS_, UBX_NAV_EOE_ID_, UBX_COM_PORT_UART1_)) {
-    return false;
-  }
-  if (!EnableMsg(UBX_NAV_CLS_, UBX_NAV_TIMEGPS_ID_, UBX_COM_PORT_UART1_)) {
-    return false;
-  }
-  return true;
-}
-bool Ubx::SetBaud(const uint8_t port, const uint32_t baud) {
-  /* Get the port config */
-  ubx_cfg_prt_req_.payload.port_id = port;
-  if (SendResponse(ubx_cfg_prt_req_, UBX_CFG_CLS_, UBX_CFG_PRT_ID_,
-                    LONG_TIMEOUT_MS_)) {
-    if (rx_msg_.len != ubx_cfg_prt_.len) {return false;}
-    memcpy(&ubx_cfg_prt_.payload, rx_msg_.payload, ubx_cfg_prt_.len);
-    /* Update the input and output protocols */
-    ubx_cfg_prt_.payload.baud_rate = baud;
-  } else {return false;}
-  return SendAck(ubx_cfg_prt_, LONG_TIMEOUT_MS_);
-}
-bool Ubx::ConfigPort(const uint8_t port, const uint8_t in_prot,
-                  const uint8_t out_prot) {
-  /* Get the port config */
-  ubx_cfg_prt_req_.payload.port_id = port;
-  if (SendResponse(ubx_cfg_prt_req_, UBX_CFG_CLS_, UBX_CFG_PRT_ID_,
-                    LONG_TIMEOUT_MS_)) {
-    if (rx_msg_.len != ubx_cfg_prt_.len) {return false;}
-    memcpy(&ubx_cfg_prt_.payload, rx_msg_.payload, ubx_cfg_prt_.len);
-    /* Update the input and output protocols */
-    ubx_cfg_prt_.payload.in_proto_mask = in_prot;
-    ubx_cfg_prt_.payload.out_proto_mask = out_prot;
-  } else {return false;}
-  return SendAck(ubx_cfg_prt_, LONG_TIMEOUT_MS_);
-}
-bool Ubx::SetRate(const uint16_t rate) {
-  /* Get the rate config */
-  req_msg_.cls = UBX_CFG_CLS_;
-  req_msg_.id = UBX_CFG_RATE_ID_;
-  req_msg_.len = 0;
-  if (SendResponse(req_msg_, UBX_CFG_CLS_, UBX_CFG_RATE_ID_,
-                    LONG_TIMEOUT_MS_)) {
-    if (rx_msg_.len != ubx_cfg_rate_.len) {return false;}
-    memcpy(&ubx_cfg_rate_.payload, rx_msg_.payload, ubx_cfg_rate_.len);
-    /* Update the rate */
-    ubx_cfg_rate_.payload.meas_rate = rate;
-  } else {return false;}
-  return SendAck(ubx_cfg_rate_, LONG_TIMEOUT_MS_);
-}
-bool Ubx::SetDynModel(const DynMdl mdl) {
-  ubx_cfg_nav5_.payload.mask = 0x01;  // dynamic model settings
-  ubx_cfg_nav5_.payload.dyn_model = mdl;
-  return SendAck(ubx_cfg_nav5_, LONG_TIMEOUT_MS_);
-}
-bool Ubx::TestComms() {
-  /* Send a legacy request for port config to see if we get a response */
-  ubx_cfg_prt_req_.payload.port_id = UBX_COM_PORT_UART1_;
-  return SendResponse(ubx_cfg_prt_req_, UBX_CFG_CLS_, UBX_CFG_PRT_ID_,
-                      TIMEOUT_MS_);
-}
-int32_t Ubx::AutoBaud() {
-  bus_->end();
-  for (std::size_t i = 0; i < sizeof(baud_rates_) / sizeof(int32_t); i++) {
-    baud_ = baud_rates_[i];
-    bus_->begin(baud_);
-    if (TestComms()) {
-      return baud_;
-    }
-    bus_->end();
-  }
-  return -1;
 }
 
 }  // namespace bfs
