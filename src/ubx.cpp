@@ -101,10 +101,18 @@ bool Ubx::Read() {
             }
             break;
           }
+          case UBX_NAV_SVIN_ID_: {
+            if (rx_msg_.len == ubx_nav_svin_.len) {
+              memcpy(&ubx_nav_svin_.payload, rx_msg_.payload, rx_msg_.len);
+              svin_data_ = true;
+            }
+            break;
+          }
           case UBX_NAV_RELPOSNED_ID_: {
             if (rx_msg_.len == ubx_nav_rel_pos_ned_.len) {
               memcpy(&ubx_nav_rel_pos_ned_.payload, rx_msg_.payload,
                      rx_msg_.len);
+              rel_pos_data_ = true;
             }
             break;
           }
@@ -288,42 +296,63 @@ void Ubx::ProcessNavData() {
     }
   }
   /* Relative position */
-  rel_pos_avail_ = ubx_nav_rel_pos_ned_.payload.flags & 0x04;
-  rel_pos_moving_baseline_ = ubx_nav_rel_pos_ned_.payload.flags & 0x20;
-  rel_pos_ref_pos_miss_ = ubx_nav_rel_pos_ned_.payload.flags & 0x40;
-  rel_pos_ref_obs_miss_ = ubx_nav_rel_pos_ned_.payload.flags & 0x80;
-  rel_pos_heading_valid_ = ubx_nav_rel_pos_ned_.payload.flags & 0x100;
-  rel_pos_norm_ = ubx_nav_rel_pos_ned_.payload.flags & 0x200;
-  if (rel_pos_avail_) {
-    rel_pos_ned_m_[0] =
-      (static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_n) +
-      static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_hp_n) * 1e-2) *
-      1e-2;
-    rel_pos_ned_m_[1] =
-      (static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_e) +
-      static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_hp_e) * 1e-2) *
-      1e-2;
-    rel_pos_ned_m_[2] =
-      (static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_d) +
-      static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_hp_d) * 1e-2) *
-      1e-2;
-    rel_pos_len_m_ =
-      (static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_length) +
-      static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_hp_length) *
-      1e-2) * 1e-2;
-    rel_pos_heading_deg_ =
-      static_cast<float>(ubx_nav_rel_pos_ned_.payload.rel_pos_heading) /
-      100000.0f;
-    rel_pos_ned_acc_m_[0] =
-      static_cast<float>(ubx_nav_rel_pos_ned_.payload.acc_n) / 10000.0f;
-    rel_pos_ned_acc_m_[1] =
-      static_cast<float>(ubx_nav_rel_pos_ned_.payload.acc_e) / 10000.0f;
-    rel_pos_ned_acc_m_[2] =
-      static_cast<float>(ubx_nav_rel_pos_ned_.payload.acc_d) / 10000.0f;
-    rel_pos_len_acc_m_ =
-      static_cast<float>(ubx_nav_rel_pos_ned_.payload.acc_length) / 10000.0f;
-    rel_pos_heading_acc_deg_ =
-      static_cast<float>(ubx_nav_rel_pos_ned_.payload.acc_heading) / 100000.0f;
+  if (rel_pos_data_) {
+    rel_pos_avail_ = ubx_nav_rel_pos_ned_.payload.flags & 0x04;
+    rel_pos_moving_baseline_ = ubx_nav_rel_pos_ned_.payload.flags & 0x20;
+    rel_pos_ref_pos_miss_ = ubx_nav_rel_pos_ned_.payload.flags & 0x40;
+    rel_pos_ref_obs_miss_ = ubx_nav_rel_pos_ned_.payload.flags & 0x80;
+    rel_pos_heading_valid_ = ubx_nav_rel_pos_ned_.payload.flags & 0x100;
+    rel_pos_norm_ = ubx_nav_rel_pos_ned_.payload.flags & 0x200;
+    if (rel_pos_avail_) {
+      rel_pos_ned_m_[0] =
+        (static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_n) +
+        static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_hp_n) * 1e-2) *
+        1e-2;
+      rel_pos_ned_m_[1] =
+        (static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_e) +
+        static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_hp_e) * 1e-2) *
+        1e-2;
+      rel_pos_ned_m_[2] =
+        (static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_d) +
+        static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_hp_d) * 1e-2) *
+        1e-2;
+      rel_pos_len_m_ =
+        (static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_length) +
+        static_cast<double>(ubx_nav_rel_pos_ned_.payload.rel_pos_hp_length) *
+        1e-2) * 1e-2;
+      rel_pos_heading_deg_ =
+        static_cast<float>(ubx_nav_rel_pos_ned_.payload.rel_pos_heading) /
+        100000.0f;
+      rel_pos_ned_acc_m_[0] =
+        static_cast<float>(ubx_nav_rel_pos_ned_.payload.acc_n) / 10000.0f;
+      rel_pos_ned_acc_m_[1] =
+        static_cast<float>(ubx_nav_rel_pos_ned_.payload.acc_e) / 10000.0f;
+      rel_pos_ned_acc_m_[2] =
+        static_cast<float>(ubx_nav_rel_pos_ned_.payload.acc_d) / 10000.0f;
+      rel_pos_len_acc_m_ =
+        static_cast<float>(ubx_nav_rel_pos_ned_.payload.acc_length) / 10000.0f;
+      rel_pos_heading_acc_deg_ =
+        static_cast<float>(ubx_nav_rel_pos_ned_.payload.acc_heading) /
+        100000.0f;
+    }
+  }
+  /* Survey in data */
+  if (svin_data_) {
+    svin_dur_s_ = ubx_nav_svin_.payload.dur;
+    svin_ecef_m_[0] = (static_cast<double>(ubx_nav_svin_.payload.mean_x) +
+                      static_cast<double>(ubx_nav_svin_.payload.mean_x_hp)
+                      * 1e-2) * 1e-2;
+    svin_ecef_m_[1] = (static_cast<double>(ubx_nav_svin_.payload.mean_y) +
+                      static_cast<double>(ubx_nav_svin_.payload.mean_y_hp)
+                      * 1e-2) * 1e-2;
+    svin_ecef_m_[2] = (static_cast<double>(ubx_nav_svin_.payload.mean_z) +
+                      static_cast<double>(ubx_nav_svin_.payload.mean_z_hp)
+                      * 1e-2) * 1e-2;
+    svin_acc_m_ = static_cast<float>(ubx_nav_svin_.payload.mean_acc) /
+                  10000.0f;
+    svin_valid_ = ubx_nav_svin_.payload.valid;
+    svin_in_progress_ = ubx_nav_svin_.payload.active;
+    svin_num_obs_ = ubx_nav_svin_.payload.obs;
   }
 }
 bool Ubx::ParseMsg() {

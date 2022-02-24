@@ -73,7 +73,7 @@ Methods are provided in this library for automatically configuring the receiver 
 
 ## Methods
 
-**Ubx(HardwareSerial* bus)** Creates a Ubx object. This constructor is used for the serial communication interface and a pointer to the serial bus object is passed to the constructor.
+**Ubx(HardwareSerial&ast; bus)** Creates a Ubx object. This constructor is used for the serial communication interface and a pointer to the serial bus object is passed to the constructor.
 
 ```C++
 bfs::Ubx ubx(&Serial1);

@@ -138,6 +138,16 @@ class Ubx {
   inline float rel_pos_heading_acc_rad() const {
     return deg2rad(rel_pos_heading_acc_deg_);
   }
+  /* Survey-in data */
+  inline bool svin_valid() const {return svin_valid_;}
+  inline bool svin_in_progress() const {return svin_in_progress_;}
+  uint32_t svin_dur_s() const {return svin_dur_s_;}
+  inline double svin_ecef_pos_x_m() const {return svin_ecef_m_[0];}
+  inline double svin_ecef_pos_y_m() const {return svin_ecef_m_[1];}
+  inline double svin_ecef_pos_z_m() const {return svin_ecef_m_[2];}
+  inline Eigen::Vector3d svin_ecef_pos_m() const {return svin_ecef_m_;}
+  inline float svin_ecef_pos_acc_m() const {return svin_acc_m_;}
+  inline uint32_t svin_num_obs() const {return svin_num_obs_;}
 
  private:
   /* Parse messages, return true on valid msg received */
@@ -148,7 +158,6 @@ class Ubx {
   HardwareSerial* bus_;
   elapsedMillis t_ms_;
   static const uint32_t COMM_TIMEOUT_MS_ = 10000;
-  bool use_hp_pos_ = false;
   /* Max payload bytes supported */
   static constexpr std::size_t UBX_MAX_PAYLOAD_ = 1024;
   /* Parsing */
@@ -165,6 +174,9 @@ class Ubx {
   std::size_t parser_state_ = 0;
   /* Data members */
   bool eoe_ = false;
+  bool use_hp_pos_ = false;
+  bool svin_data_ = false;
+  bool rel_pos_data_ = false;
   Fix fix_;
   bool gnss_fix_ok_, diff_soln_;
   bool valid_date_, valid_time_, fully_resolved_, validity_confirmed_;
@@ -177,6 +189,8 @@ class Ubx {
   bool rel_pos_ref_obs_miss_ = false;
   bool rel_pos_heading_valid_ = false;
   bool rel_pos_norm_ = false;
+  bool svin_valid_ = false;
+  bool svin_in_progress_ = false;
   int8_t carr_soln_;
   int8_t num_sv_;
   int8_t month_, day_, hour_, min_, sec_;
@@ -185,6 +199,7 @@ class Ubx {
   int16_t week_;
   int32_t nano_;
   uint32_t t_acc_ns_;
+  uint32_t svin_dur_s_, svin_num_obs_;
   float alt_msl_m_;
   float gnd_spd_mps_;
   float track_deg_;
@@ -193,6 +208,7 @@ class Ubx {
   float rel_pos_heading_deg_;
   float rel_pos_heading_acc_deg_;
   float rel_pos_len_acc_m_;
+  float svin_acc_m_;
   double rel_pos_len_m_;
   double tow_s_;
   Eigen::Vector3f ecef_vel_mps_;
@@ -201,6 +217,7 @@ class Ubx {
   Eigen::Vector3d ecef_m_;
   Eigen::Vector3d llh_;
   Eigen::Vector3d rel_pos_ned_m_;
+  Eigen::Vector3d svin_ecef_m_;
   /* Class to compute UBX checksum */
   class Checksum {
    public:
@@ -247,6 +264,7 @@ class Ubx {
   UbxNavVelecef ubx_nav_vel_ecef_;
   UbxNavPvt ubx_nav_pvt_;
   UbxNavTimegps ubx_nav_time_gps_;
+  UbxNavSvin ubx_nav_svin_;
 };
 
 }  // namespace bfs
