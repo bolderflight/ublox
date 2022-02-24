@@ -63,9 +63,15 @@ This library parses data from the following messages:
    * UBX-NAV-VELECEF
    * UBX-NAV-TIMEGPS
 
-Additionally, if high accuracy position data is available, it is also used.
+If high accuracy position data is available, it is also used.
    * UBX-NAV-HPPOSECEF
    * UBX-NAV-HPPOSLLH
+
+If relative position data is available, it is also used.
+   * UBX-NAV-RELPOSNED
+
+Finally, if survey in data is available, it is also used.
+   * UBX-NAV-SVIN
 
 Methods are provided in this library for automatically configuring the receiver to output the correct packets at the expected rate. Alternatively, the receiver can be configured in U-Center and this library used to parse the data for the microcontroller.
 
