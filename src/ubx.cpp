@@ -38,7 +38,9 @@
 namespace bfs {
 
 constexpr uint8_t Ubx::UBX_HEADER_[];
-
+void Ubx::Config(HardwareSerial* bus) {
+  bus_ = bus;
+}
 bool Ubx::Begin(int32_t baud) {
   bus_->end();
   bus_->begin(baud);

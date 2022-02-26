@@ -79,11 +79,15 @@ Finally, if you are connected to a fixed-baseline and conducting a survey-in, th
 
 ## Methods
 
+**Ubx()** Default constructor, requires calling the Config method to setup the serial port.
+
 **Ubx(HardwareSerial&ast; bus)** Creates a Ubx object. This constructor is used for the serial communication interface and a pointer to the serial bus object is passed to the constructor.
 
 ```C++
 bfs::Ubx ubx(&Serial1);
 ```
+
+**void Config(HardwareSerial&ast; bus)** Sets up the serial port to use for communication. Required if the default constructor is used.
 
 **bool Begin(const int32_t baud)** Establishes communication with the GNSS receiver. Returns true on successfully receiving data, otherwise, returns false.
 

@@ -25,13 +25,15 @@
 
 #include "ubx.h"
 
-/* Ublox object, GNSS on Serial3 */
-bfs::Ubx gnss(&Serial3);
+/* Ublox object */
+bfs::Ubx gnss;
 
 int main() {
   /* Serial to display data */
   Serial.begin(115200);
   while(!Serial) {}
+  /* GNSS on Serial3 */
+  gnss.Config(&Serial3);
   gnss.Begin(921600);
   while (1) {
     if(gnss.Read()) {

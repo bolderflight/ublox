@@ -23,8 +23,8 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef SRC_UBX_H_
-#define SRC_UBX_H_
+#ifndef UBX_SRC_UBX_H_  // NOLINT
+#define UBX_SRC_UBX_H_
 
 #if defined(ARDUINO)
 #include <Arduino.h>
@@ -50,7 +50,9 @@ class Ubx {
     FIX_RTK_FLOAT = 4,
     FIX_RTK_FIXED = 5
   };
+  Ubx() {}
   explicit Ubx(HardwareSerial* bus) : bus_(bus) {}
+  void Config(HardwareSerial* bus);
   /* Standard begin, set the baud and test for comms */
   bool Begin(const int32_t baud);
   /* Reads NAV data and returns true on EOE */
@@ -269,4 +271,4 @@ class Ubx {
 
 }  // namespace bfs
 
-#endif  // SRC_UBX_H_
+#endif  // UBX_SRC_UBX_H_ NOLINT

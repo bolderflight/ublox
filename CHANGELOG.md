@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.1.0
+- Added default constructor and a config method to configure the receiver
+
 ## v5.0.0
 - Removed configuration methods (for now), since they weren't always reliable
 - Added relative position output
