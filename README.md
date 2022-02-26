@@ -63,17 +63,17 @@ This library parses data from the following messages:
    * UBX-NAV-VELECEF
    * UBX-NAV-TIMEGPS
 
-If high accuracy position data is available, it is also used.
+These messages should be enabled using the [u-center software](https://www.u-blox.com/en/product/u-center).
+
+If high accuracy position data is available, the following messages should be enabled and will be used by this library.
    * UBX-NAV-HPPOSECEF
    * UBX-NAV-HPPOSLLH
 
-If relative position data is available, it is also used.
+If relative position data is available, such as from a stationary or moving reference, the following message should be enabled and will be used by this library.
    * UBX-NAV-RELPOSNED
 
-Finally, if survey in data is available, it is also used.
+Finally, if you are connected to a fixed-baseline and conducting a survey-in, the following message should be enabled and will be used by this library to provide information regarding the survey-in status.
    * UBX-NAV-SVIN
-
-Methods are provided in this library for automatically configuring the receiver to output the correct packets at the expected rate. Alternatively, the receiver can be configured in U-Center and this library used to parse the data for the microcontroller.
 
 # Ubx
 
@@ -84,63 +84,15 @@ Methods are provided in this library for automatically configuring the receiver 
 ```C++
 bfs::Ubx ubx(&Serial1);
 ```
-### Automatic setup
-The following method automatically establishes communication with the GNSS reciever and configures it correctly. It is recommended for most situations.
-
-**bool AutoBegin()** Automatically determines the GNSS receiver baudrate and configures the receiver:
-   * To output the expected UBX-NAV packets at 10 Hz
-   * To use a baudrate of 460800
-   * To disable NMEA outputs
-   * To use an airborne, 4G dynamic model
-
-This method returns true on success or false on failure.
-
-```C++
-ubx.AutoBegin();
-```
-
-### Manual setup
-The following methods are available for manually setting up the receiver.
 
 **bool Begin(const int32_t baud)** Establishes communication with the GNSS receiver. Returns true on successfully receiving data, otherwise, returns false.
 
 ```C++
 bool status = ubx.Begin(921600);
 ```
-**void SetFactoryDefaults()** Clears the current receiver configuration, loading the factory defaults.
-
-**bool SetRate(const uint16_t period_ms)** Sets the navigation solution rate, returns true on success or false on failure.
-
-**bool SetDynModel(const DynMdl mdl)** Sets the dynamic model, returns true on success or false on failure. The available dynamic models are:
-
-| Enum | Description |
-| --- | --- |
-| DYN_MDL_PORTABLE | Portable |
-| DYN_MDL_STATIONARY | Stationary |
-| DYN_MDL_PEDESTRIAN | Pedestrian |
-| DYN_MDL_AUTOMOTIVE | Automotive |
-| DYN_MDL_SEA | Sea |
-| DYN_MDL_AIRBORNE_1G | Airborne with < 1G accel |
-| DYN_MDL_AIRBORNE_2G | Airborne with < 2G accel |
-| DYN_MDL_AIRBORNE_4G | Airborne with < 4G accel |
-| DYN_MDL_WRIST | Writst worn watch |
-| DYN_MDL_BIKE | Bike |
-
-```C++
-ubx.SetDynModel(bfs::Ubx::DYN_MDL_AIRBORNE_4G);
-```
-
-**bool TestComms()** Tests for communication with the GNSS receiver, returns true if communication is successful, otherwise, returns false.
-
-**int32_t AutoBaud()** Determines the baudrate of the GNSS receiver, returns the baudrate on success or -1 on failure.
-
-**bool SetBaud(const uint8_t port, const uint32_t baud)** Sets the receiver baudrate given a port and a baudrate. Returns true on success or false on failure. Available ports are: **UBX_COM_PORT_UART1_** and **UBX_COM_PORT_UART2_**.
-
-**bool ConfigPort(const uint8_t port, const uint8_t in_prot, const uint8_t out_prot)** Configures the input and output protocols for a given port, returning true on success or false on failure. Available ports are: **UBX_COM_PORT_UART1_** and **UBX_COM_PORT_UART2_**, available protocols are: **UBX_COM_PROT_UBX_**, **UBX_COM_PROT_NMEA_**, **UBX_COM_PROT_RTCM_**, **UBX_COM_PROT_RTCM3_**. Protocols can be OR'd together to enable multiple.
-
 
 ### Data Collection
-In all cases, the following method reads and parses the serial data. True is returned on receiving a full epoch of new data.
+The following method reads and parses the serial data. True is returned on receiving a full epoch of new data.
 
 **bool Read()** Reads and parses data from the serial port. Returns true on receiving the end of epoch frame, which indicates that all data should be updated and available to use.
 
@@ -152,6 +104,8 @@ if (ubx.Read()) {
 
 ### Data Retrieval
 The most recent valid packet is stored in the Ubx object. Data fields can be retrieved using the following functions.
+
+#### Common Data
 
 **Fix fix()** Returns the GNSS fix status.
 
@@ -259,3 +213,66 @@ The most recent valid packet is stored in the Ubx object. Data fields can be ret
 **float ndop()** northing dilution of precision.
 
 **float edop()** easting dilution of precision.
+
+#### Relative Position Data
+
+**bool rel_pos_avail()** Whether relative position data is available.
+
+**bool rel_pos_moving_baseline()** Whether the receiver is operating in moving base mode.
+
+**bool rel_pos_ref_pos_miss()** Whether extrapolated reference position was used to compute moving base solution this epoch.
+
+**bool rel_pos_ref_obs_miss()** Whether extrapolated reference observations were used to compute moving base solution this epoch.
+
+**bool rel_pos_heading_valid()** Whether heading of the relative position vector is valid.
+
+**bool rel_pos_normalized()** Whether the components of the relative position vector
+(including the high-precision parts) are normalized.
+
+**double rel_pos_north_m()** North component of relative position vector, m.
+
+**double rel_pos_east_m()** East component of relative position vector, m.
+
+**double rel_pos_down_m()** Down component of relative position vector, m.
+
+**Eigen::Vector3d rel_pos_ned_m()** North East Down (NED) relative position vector, m
+
+**float rel_pos_acc_north_m()** Accuracy of relative position North component, m.
+
+**float rel_pos_acc_east_m()** Accuracy of relative position East component, m.
+
+**float rel_pos_acc_down_m()** Accuracy of relative position Down component, m.
+
+**Eigen::Vector3f rel_pos_acc_ned_m()** Accuracy of the relative position, returned as a North East Down (NED) vector, m.
+
+**double rel_pos_len_m()** Length of the relative position vector, m.
+
+**float rel_pos_len_acc_m()**  Accuracy of length of the relative position vector, m.
+
+**float rel_pos_heading_deg()** Heading of the relative position vector, deg.
+
+**float rel_pos_heading_rad()** Heading of the relative position vector, rad.
+
+**float rel_pos_heading_acc_deg()** Accuracy of the heading of the relative position vector, deg.
+
+**float rel_pos_heading_acc_rad()** Accuracy of the heading of the relative position vector, rad.
+
+#### Survey In Data
+
+**bool svin_valid()** Survey-in position validity flag, true = valid, otherwise false.
+
+**bool svin_in_progress()** Survey-in in progress flag, true = in-progress, otherwise false.
+
+**uint32_t svin_dur_s()** Passed survey-in observation time, s.
+
+**double svin_ecef_pos_x_m()** Current survey-in mean position ECEF X coordinate, m.
+
+**double svin_ecef_pos_y_m()** Current survey-in mean position ECEF Y coordinate, m.
+
+**double svin_ecef_pos_z_m()** Current survey-in mean position ECEF Z coordinate, m.
+
+**Eigen::Vector3d svin_ecef_pos_m()** Current survey-in mean position ECEF vector, m.
+
+**float svin_ecef_pos_acc_m()** Current survey-in mean position accuracy, m.
+
+**uint32_t svin_num_obs()** Number of position observations used during survey-in.
