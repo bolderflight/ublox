@@ -1,5 +1,13 @@
 # Changelog
 
+## v5.0.0
+- Removed configuration methods (for now), since they weren't always reliable
+- Added relative position output
+- Added survey-in output
+
+## v4.1.0
+- Added relative position output to support GNSS RTK and GNSS yaw
+
 ## v4.0.1
 - Fixing issue with linker in versions older than C++17
 

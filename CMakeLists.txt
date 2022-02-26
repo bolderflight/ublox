@@ -12,7 +12,7 @@ if (DEFINED MCU)
   set(CMAKE_TOOLCHAIN_FILE "${mcu_support_SOURCE_DIR}/cmake/cortex.cmake")
   # Project information
   project(Ublox
-    VERSION 4.0.1
+    VERSION 5.0.0
     DESCRIPTION "uBlox UBX sensor driver"
     LANGUAGES CXX
   )
@@ -30,7 +30,7 @@ if (DEFINED MCU)
   FetchContent_Declare(
     units
     GIT_REPOSITORY 	https://github.com/bolderflight/units.git
-    GIT_TAG v4.0.4
+    GIT_TAG v4.1.0
   )
   FetchContent_MakeAvailable(units)
   # Fetch eigen
@@ -44,18 +44,8 @@ if (DEFINED MCU)
   add_library(ubx
     src/ubx.cpp
     src/ubx.h
-    src/ubx_ack.h
-    src/ubx_cfg.h
     src/ubx_defs.h
-    src/ubx_inf.h
-    src/ubx_log.h
-    src/ubx_mga.h
-    src/ubx_mon.h
     src/ubx_nav.h
-    src/ubx_rxm.h
-    src/ubx_sec.h
-    src/ubx_time.h
-    src/ubx_upd.h
   )
   # Link libraries
   target_link_libraries(ubx

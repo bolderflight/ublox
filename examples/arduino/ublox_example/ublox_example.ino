@@ -32,10 +32,7 @@ void setup() {
   /* Serial to display data */
   Serial.begin(115200);
   while(!Serial) {}
-  if (!gnss.AutoBegin()) {
-    Serial.println("Unable to establish communication and configure GNSS RX");
-    while (1) {}
-  }
+  gnss.Begin(921600);
 }
 
 void loop() {
@@ -48,7 +45,7 @@ void loop() {
     Serial.print("\t");
     Serial.print(gnss.lon_deg(), 6);
     Serial.print("\t");
-    Serial.print(gnss.alt_wgs84_m());
+    Serial.print(gnss.alt_wgs84_m(), 2);
     Serial.print("\n");
   }
 }
