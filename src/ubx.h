@@ -141,7 +141,7 @@ class Ubx {
   /* Survey-in data */
   inline bool svin_valid() const {return svin_valid_;}
   inline bool svin_in_progress() const {return svin_in_progress_;}
-  uint32_t svin_dur_s() const {return svin_dur_s_;}
+  inline uint32_t svin_dur_s() const {return svin_dur_s_;}
   inline double svin_ecef_pos_x_m() const {return svin_ecef_m_[0];}
   inline double svin_ecef_pos_y_m() const {return svin_ecef_m_[1];}
   inline double svin_ecef_pos_z_m() const {return svin_ecef_m_[2];}

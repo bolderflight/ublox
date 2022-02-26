@@ -33,22 +33,18 @@ int main() {
   Serial.begin(115200);
   while(!Serial) {}
   gnss.Begin(921600);
-  // if (!gnss.AutoBegin()) {
-  //   Serial.println("Unable to establish communication and configure GNSS RX");
-  //   while (1) {}
-  // }
   while (1) {
     if(gnss.Read()) {
-      // Serial.print(gnss.fix());
-      // Serial.print("\t");
-      // Serial.print(gnss.num_sv());
-      // Serial.print("\t");
-      // Serial.print(gnss.lat_deg(), 6);
-      // Serial.print("\t");
-      // Serial.print(gnss.lon_deg(), 6);
-      // Serial.print("\t");
-      // Serial.print(gnss.alt_wgs84_m());
-      // Serial.print("\n");
+      Serial.print(gnss.fix());
+      Serial.print("\t");
+      Serial.print(gnss.num_sv());
+      Serial.print("\t");
+      Serial.print(gnss.lat_deg(), 6);
+      Serial.print("\t");
+      Serial.print(gnss.lon_deg(), 6);
+      Serial.print("\t");
+      Serial.print(gnss.alt_wgs84_m(), 2);
+      Serial.print("\n");
     }
   }
 }

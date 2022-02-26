@@ -1,5 +1,10 @@
 # Changelog
 
+## v5.0.0
+- Removed configuration methods (for now), since they weren't always reliable
+- Added relative position output
+- Added survey-in output
+
 ## v4.1.0
 - Added relative position output to support GNSS RTK and GNSS yaw
 
