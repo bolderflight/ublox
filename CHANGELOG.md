@@ -1,5 +1,8 @@
 # Changelog
 
+## v6.0.1
+- Fixed bug in converting from deg to rad where precision could be lost with lat / lon
+
 ## v6.0.0
 - Removed dependency on Eigen and Units libraries to better support Arduino AVR
 - Added CMake support for Teensy MMOD

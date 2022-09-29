@@ -12,7 +12,7 @@ if (DEFINED MCU)
   set(CMAKE_TOOLCHAIN_FILE "${mcu_support_SOURCE_DIR}/cmake/cortex.cmake")
   # Project information
   project(Ublox
-    VERSION 6.0.0
+    VERSION 6.0.1
     DESCRIPTION "uBlox UBX sensor driver"
     LANGUAGES CXX
   )

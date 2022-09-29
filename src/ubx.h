@@ -78,13 +78,13 @@ class Ubx {
   inline float ecef_vel_z_mps() const {return ecef_vel_mps_[2];}
   inline float spd_acc_mps() const {return s_acc_mps_;}
   inline float track_deg() const {return track_deg_;}
-  inline float track_rad() const {return track_deg_ * DEG2RAD_;}
+  inline float track_rad() const {return track_deg_ * DEG2RADf_;}
   inline float track_acc_deg() const {return track_acc_deg_;}
-  inline float track_acc_rad() const {return track_acc_deg_ * DEG2RAD_;}
+  inline float track_acc_rad() const {return track_acc_deg_ * DEG2RADf_;}
   inline double lat_deg() const {return llh_[0];}
-  inline double lat_rad() const {return llh_[0] * DEG2RAD_;}
+  inline double lat_rad() const {return llh_[0] * DEG2RADl_;}
   inline double lon_deg() const {return llh_[1];}
-  inline double lon_rad() const {return llh_[1] * DEG2RAD_;}
+  inline double lon_rad() const {return llh_[1] * DEG2RADl_;}
   inline float alt_wgs84_m() const {return static_cast<float>(llh_[2]);}
   inline float alt_msl_m() const {return alt_msl_m_;}
   inline float horz_acc_m() const {return h_acc_m_;}
@@ -120,10 +120,10 @@ class Ubx {
     return rel_pos_heading_acc_deg_;
   }
   inline float rel_pos_heading_rad() const {
-    return rel_pos_heading_deg_ * DEG2RAD_;
+    return rel_pos_heading_deg_ * DEG2RADf_;
   }
   inline float rel_pos_heading_acc_rad() const {
-    return rel_pos_heading_acc_deg_ * DEG2RAD_;
+    return rel_pos_heading_acc_deg_ * DEG2RADf_;
   }
   /* Survey-in data */
   inline bool svin_valid() const {return svin_valid_;}
@@ -159,8 +159,10 @@ class Ubx {
   uint8_t c_, len_, chk_rx_, chk_[2];
   uint16_t chk_cmp_rx_, chk_cmp_tx_;
   size_t parser_state_ = 0;
-  static constexpr float DEG2RAD_ = 3.14159265358979323846264338327950288f /
-                                  180.0f;
+  static constexpr float DEG2RADf_ = 3.14159265358979323846264338327950288f /
+                                     180.0f;
+  static constexpr double DEG2RADl_ = 3.14159265358979323846264338327950288 /
+                                      180.0;
   /* Data members */
   bool eoe_ = false;
   bool use_hp_pos_ = false;
