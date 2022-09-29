@@ -26,8 +26,10 @@
 #ifndef SRC_UBX_DEFS_H_
 #define SRC_UBX_DEFS_H_
 
+#if !defined(ARDUINO)
 #include <cstdint>
 #include <cstddef>
+#endif
 
 namespace bfs {
 /*

@@ -29,12 +29,10 @@
 #if defined(ARDUINO)
 #include <Arduino.h>
 #else
-#include "core/core.h"
-#endif
 #include <cstddef>
 #include <cstdint>
-#include "eigen.h"  // NOLINT
-#include "units.h"  // NOLINT
+#include "core/core.h"
+#endif
 #include "ubx_defs.h"  // NOLINT
 #include "ubx_nav.h"  // NOLINT
 
@@ -43,12 +41,12 @@ namespace bfs {
 class Ubx {
  public:
   enum Fix : int8_t {
-    FIX_NONE = 0,
-    FIX_2D = 1,
-    FIX_3D = 2,
-    FIX_DGNSS = 3,
-    FIX_RTK_FLOAT = 4,
-    FIX_RTK_FIXED = 5
+    FIX_NONE = 1,
+    FIX_2D = 2,
+    FIX_3D = 3,
+    FIX_DGNSS = 4,
+    FIX_RTK_FLOAT = 5,
+    FIX_RTK_FIXED = 6
   };
   Ubx() {}
   explicit Ubx(HardwareSerial* bus) : bus_(bus) {}
@@ -71,37 +69,26 @@ class Ubx {
   inline int16_t gps_week() const {return week_;}
   inline int8_t leap_s() const {return leap_s_;}
   inline uint32_t time_acc_ns() const {return t_acc_ns_;}
-  inline Eigen::Vector3f ned_vel_mps() const {return ned_vel_mps_;}
   inline float north_vel_mps() const {return ned_vel_mps_[0];}
   inline float east_vel_mps() const {return ned_vel_mps_[1];}
   inline float down_vel_mps() const {return ned_vel_mps_[2];}
   inline float gnd_spd_mps() const {return gnd_spd_mps_;}
-  inline Eigen::Vector3f ecef_vel_mps() const {return ecef_vel_mps_;}
   inline float ecef_vel_x_mps() const {return ecef_vel_mps_[0];}
   inline float ecef_vel_y_mps() const {return ecef_vel_mps_[1];}
   inline float ecef_vel_z_mps() const {return ecef_vel_mps_[2];}
   inline float spd_acc_mps() const {return s_acc_mps_;}
   inline float track_deg() const {return track_deg_;}
-  inline float track_rad() const {return deg2rad(track_deg_);}
+  inline float track_rad() const {return track_deg_ * DEG2RAD_;}
   inline float track_acc_deg() const {return track_acc_deg_;}
-  inline float track_acc_rad() const {return deg2rad(track_acc_deg_);}
-  inline Eigen::Vector3d llh_deg_m() const {return llh_;}
-  inline Eigen::Vector3d llh_rad_m() const {
-    Eigen::Vector3d ret;
-    ret[0] = deg2rad(llh_[0]);
-    ret[1] = deg2rad(llh_[1]);
-    ret[2] = llh_[2];
-    return ret;
-  }
+  inline float track_acc_rad() const {return track_acc_deg_ * DEG2RAD_;}
   inline double lat_deg() const {return llh_[0];}
-  inline double lat_rad() const {return deg2rad(llh_[0]);}
+  inline double lat_rad() const {return llh_[0] * DEG2RAD_;}
   inline double lon_deg() const {return llh_[1];}
-  inline double lon_rad() const {return deg2rad(llh_[1]);}
+  inline double lon_rad() const {return llh_[1] * DEG2RAD_;}
   inline float alt_wgs84_m() const {return static_cast<float>(llh_[2]);}
   inline float alt_msl_m() const {return alt_msl_m_;}
   inline float horz_acc_m() const {return h_acc_m_;}
   inline float vert_acc_m() const {return v_acc_m_;}
-  inline Eigen::Vector3d ecef_pos_m() const {return ecef_m_;}
   inline double ecef_pos_x_m() const {return ecef_m_[0];}
   inline double ecef_pos_y_m() const {return ecef_m_[1];}
   inline double ecef_pos_z_m() const {return ecef_m_[2];}
@@ -123,11 +110,9 @@ class Ubx {
   inline double rel_pos_north_m() const {return rel_pos_ned_m_[0];}
   inline double rel_pos_east_m() const {return rel_pos_ned_m_[1];}
   inline double rel_pos_down_m() const {return rel_pos_ned_m_[2];}
-  inline Eigen::Vector3d rel_pos_ned_m() const {return rel_pos_ned_m_;}
   inline float rel_pos_acc_north_m() const {return rel_pos_ned_acc_m_[0];}
   inline float rel_pos_acc_east_m() const {return rel_pos_ned_acc_m_[1];}
   inline float rel_pos_acc_down_m() const {return rel_pos_ned_acc_m_[2];}
-  inline Eigen::Vector3f rel_pos_acc_ned_m() const {return rel_pos_ned_acc_m_;}
   inline double rel_pos_len_m() const {return rel_pos_len_m_;}
   inline float rel_pos_len_acc_m() const {return rel_pos_len_acc_m_;}
   inline float rel_pos_heading_deg() const {return rel_pos_heading_deg_;}
@@ -135,10 +120,10 @@ class Ubx {
     return rel_pos_heading_acc_deg_;
   }
   inline float rel_pos_heading_rad() const {
-    return deg2rad(rel_pos_heading_deg_);
+    return rel_pos_heading_deg_ * DEG2RAD_;
   }
   inline float rel_pos_heading_acc_rad() const {
-    return deg2rad(rel_pos_heading_acc_deg_);
+    return rel_pos_heading_acc_deg_ * DEG2RAD_;
   }
   /* Survey-in data */
   inline bool svin_valid() const {return svin_valid_;}
@@ -147,7 +132,6 @@ class Ubx {
   inline double svin_ecef_pos_x_m() const {return svin_ecef_m_[0];}
   inline double svin_ecef_pos_y_m() const {return svin_ecef_m_[1];}
   inline double svin_ecef_pos_z_m() const {return svin_ecef_m_[2];}
-  inline Eigen::Vector3d svin_ecef_pos_m() const {return svin_ecef_m_;}
   inline float svin_ecef_pos_acc_m() const {return svin_acc_m_;}
   inline uint32_t svin_num_obs() const {return svin_num_obs_;}
 
@@ -158,10 +142,11 @@ class Ubx {
   void ProcessNavData();
   /* Communication */
   HardwareSerial* bus_;
-  elapsedMillis t_ms_;
-  static const uint32_t COMM_TIMEOUT_MS_ = 10000;
+  int8_t comm_timeout_count_; 
+  static const int8_t COMM_TIMEOUT_TRIES_ = 10;
+  static const int16_t COMM_TIMEOUT_DELAY_MS_ = 1000; 
   /* Max payload bytes supported */
-  static constexpr std::size_t UBX_MAX_PAYLOAD_ = 1024;
+  static constexpr size_t UBX_MAX_PAYLOAD_ = 128;
   /* Parsing */
   static constexpr uint8_t UBX_HEADER_[2] = {0xB5, 0x62};
   static constexpr uint8_t UBX_CLS_POS_ = 2;
@@ -173,7 +158,9 @@ class Ubx {
                                              sizeof(UBX_HEADER_);
   uint8_t c_, len_, chk_rx_, chk_[2];
   uint16_t chk_cmp_rx_, chk_cmp_tx_;
-  std::size_t parser_state_ = 0;
+  size_t parser_state_ = 0;
+  static constexpr float DEG2RAD_ = 3.14159265358979323846264338327950288f /
+                                  180.0f;
   /* Data members */
   bool eoe_ = false;
   bool use_hp_pos_ = false;
@@ -213,33 +200,33 @@ class Ubx {
   float svin_acc_m_;
   double rel_pos_len_m_;
   double tow_s_;
-  Eigen::Vector3f ecef_vel_mps_;
-  Eigen::Vector3f ned_vel_mps_;
-  Eigen::Vector3f rel_pos_ned_acc_m_;
-  Eigen::Vector3d ecef_m_;
-  Eigen::Vector3d llh_;
-  Eigen::Vector3d rel_pos_ned_m_;
-  Eigen::Vector3d svin_ecef_m_;
+  float ecef_vel_mps_[3];
+  float ned_vel_mps_[3];
+  float rel_pos_ned_acc_m_[3];
+  double ecef_m_[3];
+  double llh_[3];
+  double rel_pos_ned_m_[3];
+  double svin_ecef_m_[3];
   /* Class to compute UBX checksum */
   class Checksum {
    public:
-    uint16_t Compute(uint8_t const * const data, const std::size_t len) {
+    uint16_t Compute(uint8_t const * const data, const size_t len) {
       if (!data) {
         return 0;
       }
       sum0_ = 0;
       sum1_ = 0;
-      for (std::size_t i = 0; i < len; i++) {
+      for (size_t i = 0; i < len; i++) {
         sum0_ += data[i];
         sum1_ += sum0_;
       }
       return static_cast<uint16_t>(sum1_) << 8 | sum0_;
     }
-    uint16_t Update(uint8_t const * const data, const std::size_t len) {
+    uint16_t Update(uint8_t const * const data, const size_t len) {
       if (!data) {
         return 0;
       }
-      for (std::size_t i = 0; i < len; i++) {
+      for (size_t i = 0; i < len; i++) {
         sum0_ += data[i];
         sum1_ += sum0_;
       }

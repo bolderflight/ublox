@@ -22,12 +22,10 @@ gps_tow_s	KEYWORD2
 gps_week	KEYWORD2
 leap_s	KEYWORD2
 time_acc_ns	KEYWORD2
-ned_vel_mps	KEYWORD2
 north_vel_mps	KEYWORD2
 east_vel_mps	KEYWORD2
 down_vel_mps	KEYWORD2
 gnd_spd_mps	KEYWORD2
-ecef_vel_mps	KEYWORD2
 ecef_vel_x_mps	KEYWORD2
 ecef_vel_y_mps	KEYWORD2
 ecef_vel_z_mps	KEYWORD2
@@ -36,8 +34,6 @@ track_deg	KEYWORD2
 track_rad	KEYWORD2
 track_acc_deg	KEYWORD2
 track_acc_rad	KEYWORD2
-llh_deg_m	KEYWORD2
-llh_rad_m	KEYWORD2
 lat_deg	KEYWORD2
 lat_rad	KEYWORD2
 lon_deg	KEYWORD2
@@ -46,7 +42,6 @@ alt_wgs84_m	KEYWORD2
 alt_msl_m	KEYWORD2
 horz_acc_m	KEYWORD2
 vert_acc_m	KEYWORD2
-ecef_pos_m	KEYWORD2
 ecef_pos_x_m	KEYWORD2
 ecef_pos_y_m	KEYWORD2
 ecef_pos_z_m	KEYWORD2
@@ -67,11 +62,9 @@ rel_pos_normalized	KEYWORD2
 rel_pos_north_m	KEYWORD2
 rel_pos_east_m	KEYWORD2
 rel_pos_down_m	KEYWORD2
-rel_pos_ned_m	KEYWORD2
 rel_pos_acc_north_m	KEYWORD2
 rel_pos_acc_east_m	KEYWORD2
 rel_pos_acc_down_m	KEYWORD2
-rel_pos_acc_ned_m	KEYWORD2
 rel_pos_len_m	KEYWORD2
 rel_pos_len_acc_m	KEYWORD2
 rel_pos_heading_deg	KEYWORD2
@@ -84,6 +77,5 @@ svin_dur_s	KEYWORD2
 svin_ecef_pos_x_m	KEYWORD2
 svin_ecef_pos_y_m	KEYWORD2
 svin_ecef_pos_z_m	KEYWORD2
-svin_ecef_pos_m	KEYWORD2
 svin_ecef_pos_acc_m	KEYWORD2
 svin_num_obs	KEYWORD2

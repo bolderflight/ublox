@@ -26,8 +26,10 @@
 #ifndef SRC_UBX_NAV_H_
 #define SRC_UBX_NAV_H_
 
+#if !defined(ARDUINO)
 #include <cstdint>
 #include <cstddef>
+#endif
 #include "ubx_defs.h"  // NOLINT
 
 namespace bfs {
@@ -99,7 +101,7 @@ struct UbxNavEoe {
     U4 i_tow;   // GPS time of week, ms
   } payload;
 };
-template<std::size_t N>   // templated by the maximum number of fences
+template<size_t N>   // templated by the maximum number of fences
 struct UbxNavGeofence {
   static constexpr uint8_t cls = UBX_NAV_CLS_;
   static constexpr uint8_t id = UBX_NAV_GEOFENCE_ID_;
@@ -168,7 +170,7 @@ struct UbxNavOdo {
     U4 distance_std;    // Ground distance accuracy (1-sigma), m
   } payload;
 };
-template<std::size_t N>  // templated by maximum number of satellites
+template<size_t N>  // templated by maximum number of satellites
 struct UbxNavOrb {
   static constexpr uint8_t cls = UBX_NAV_CLS_;
   static constexpr uint8_t id = UBX_NAV_ORB_ID_;
@@ -287,7 +289,7 @@ struct UbxNavResetodo {
   static constexpr uint8_t id = UBX_NAV_RESETODO_ID_;
   static constexpr uint16_t len = 0;
 };
-template<std::size_t N>  // templated by maximum number of satellites
+template<size_t N>  // templated by maximum number of satellites
 struct UbxNavSat {
   static constexpr uint8_t cls = UBX_NAV_CLS_;
   static constexpr uint8_t id = UBX_NAV_SAT_ID_;
@@ -308,7 +310,7 @@ struct UbxNavSat {
     } sv[N];          // Repeated group (num_sv times)
   } payload;
 };
-template<std::size_t N>  // templated by maximum number of satellites
+template<size_t N>  // templated by maximum number of satellites
 struct UbxNavSbas {
   static constexpr uint8_t cls = UBX_NAV_CLS_;
   static constexpr uint8_t id = UBX_NAV_SBAS_ID_;
@@ -334,7 +336,7 @@ struct UbxNavSbas {
     } sv[N];          // Repeated group (cnt times)
   } payload;
 };
-template<std::size_t N>  // templated by maximum number of signals
+template<size_t N>  // templated by maximum number of signals
 struct UbxNavSig {
   static constexpr uint8_t cls = UBX_NAV_CLS_;
   static constexpr uint8_t id = UBX_NAV_SIG_ID_;
@@ -359,7 +361,7 @@ struct UbxNavSig {
     } sig[N];           // Repeated group (num_sigs times)
   } payload;
 };
-template<std::size_t N>  // templated by maximum number of corrections
+template<size_t N>  // templated by maximum number of corrections
 struct UbxNavSlas {
   static constexpr uint8_t cls = UBX_NAV_CLS_;
   static constexpr uint8_t id = UBX_NAV_SLAS_ID_;

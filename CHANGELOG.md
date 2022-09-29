@@ -1,5 +1,9 @@
 # Changelog
 
+## v6.0.0
+- Removed dependency on Eigen and Units libraries to better support Arduino AVR
+- Added CMake support for Teensy MMOD
+
 ## v5.1.0
 - Added default constructor and a config method to configure the receiver
 

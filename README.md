@@ -1,9 +1,9 @@
-[![Pipeline](https://gitlab.com/bolderflight/software/ublox/badges/main/pipeline.svg)](https://gitlab.com/bolderflight/software/ublox/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ![Bolder Flight Systems Logo](img/logo-words_75.png) &nbsp; &nbsp; ![Arduino Logo](img/arduino_logo_75.png)
 
 # Ubx
-This library communicates with uBlox GNSS receivers using the UBX protocol.  This library is compatible with Arduino ARM and CMake build systems.
+This library communicates with uBlox GNSS receivers using the UBX protocol.  This library is compatible with Arduino and CMake build systems.
    * [License](LICENSE.md)
    * [Changelog](CHANGELOG.md)
    * [Contributing guide](CONTRIBUTING.md)
@@ -14,13 +14,13 @@ uBlox produces standard and high precision GPS receivers. These receivers featur
 # Installation
 
 ## Arduino
-Use the Arduino Library Manager to install this library or clone to your Arduino/libraries folder. In addition, the [Bolder Flight Systems Units library](https://github.com/bolderflight/units) and the [Bolder Flight Systems Eigen library](https://github.com/bolderflight/eigen) must be installed. This library is added as:
+Use the Arduino Library Manager to install this library or clone to your Arduino/libraries folder. This library is added as:
 
 ```C++
 #include "ubx.h"
 ```
 
-An example Arduino executable is located in: *examples/arduino/ublox_example/ublox_example.ino*. Teensy 3.x, 4.x, and LC devices are used for testing under Arduino and this library should be compatible with other Arduino ARM devices. This library is **not** expected to work with AVR devices.
+An example Arduino executable is located in: *examples/arduino/ublox_example/ublox_example.ino*. Teensy 3.x, 4.x, and LC devices are used for testing under Arduino and this library should be compatible with other Arduino devices.
 
 ## CMake
 CMake is used to build this library, which is exported as a library target called *ubx*. The header is added as:
@@ -44,10 +44,11 @@ This will build the library and an example executable called *ublox_example*. Th
    * MKL26Z64
    * IMXRT1062_T40
    * IMXRT1062_T41
+   * IMXRT1062_MMOD
 
 These are known to work with the same packages used in Teensy products. Also switching packages is known to work well, as long as it's only a package change.
 
-The example target creates an executable for communicating with the GNSS receiver using the UBX protocol. Each target also has a *_hex*, for creating the hex file to upload to the microcontroller, and an *_upload* for using the [Teensy CLI Uploader](https://www.pjrc.com/teensy/loader_cli.html) to flash the Teensy. Please note that the CMake build tooling is expected to be run under Linux or WSL, instructions for setting up your build environment can be found in our [build-tools repo](https://github.com/bolderflight/build-tools).
+The example target creates an executable for communicating with the GNSS receiver using the UBX protocol. Each target also has a *_hex*, for creating the hex file to upload to the microcontroller, and an *_upload* for using the [Teensy CLI Uploader](https://www.pjrc.com/teensy/loader_cli.html) to flash the Teensy. Instructions for setting up your build environment can be found in our [build-tools repo](https://github.com/bolderflight/build-tools).
 
 # Namespace
 This library is within the namespace *bfs*.
@@ -146,8 +147,6 @@ The most recent valid packet is stored in the Ubx object. Data fields can be ret
 
 **uint32_t time_acc_ns()** Estimated time accuracy, ns.
 
-**Eigen::Vector3f ned_vel_mps()** North, East, Down (NED) velocity, m/s
-
 **float north_vel_mps()** North velocity, m/s
 
 **float east_vel_mps()** East velocity, m/s
@@ -155,8 +154,6 @@ The most recent valid packet is stored in the Ubx object. Data fields can be ret
 **float down_vel_mps()** Down velocity, m/s
 
 **float gnd_spd_mps()** Ground speed (2D), m/s
-
-**Eigen::Vector3f ecef_vel_mps()** ECEF velocity, m/s
 
 **float ecef_vel_x_mps()** ECEF x velocity, m/s
 
@@ -174,10 +171,6 @@ The most recent valid packet is stored in the Ubx object. Data fields can be ret
 
 **float track_acc_rad()** Estimated ground track (2D heading of motion) accuracy, rad
 
-**Eigen::Vector3d llh_deg_m()** Latitude, longitude, and height above the WGS84 ellipsoid in degrees and meters.
-
-**Eigen::Vector3d llh_rad_m()** Latitude, longitude, and height above the WGS84 ellipsoid in radians and meters.
-
 **double lat_deg()** Latitude, deg
 
 **double lat_rad()** Latitude, rad
@@ -193,8 +186,6 @@ The most recent valid packet is stored in the Ubx object. Data fields can be ret
 **float horz_acc_m()** Estimated horizontal position accuracy, m
 
 **float vert_acc_m()** Estimated vertical position accuracy, m
-
-**Eigen::Vector3d ecef_pos_m()** ECEF position, m
 
 **double ecef_pos_x_m()** ECEF x position, m
 
@@ -239,15 +230,11 @@ The most recent valid packet is stored in the Ubx object. Data fields can be ret
 
 **double rel_pos_down_m()** Down component of relative position vector, m.
 
-**Eigen::Vector3d rel_pos_ned_m()** North East Down (NED) relative position vector, m
-
 **float rel_pos_acc_north_m()** Accuracy of relative position North component, m.
 
 **float rel_pos_acc_east_m()** Accuracy of relative position East component, m.
 
 **float rel_pos_acc_down_m()** Accuracy of relative position Down component, m.
-
-**Eigen::Vector3f rel_pos_acc_ned_m()** Accuracy of the relative position, returned as a North East Down (NED) vector, m.
 
 **double rel_pos_len_m()** Length of the relative position vector, m.
 
@@ -274,8 +261,6 @@ The most recent valid packet is stored in the Ubx object. Data fields can be ret
 **double svin_ecef_pos_y_m()** Current survey-in mean position ECEF Y coordinate, m.
 
 **double svin_ecef_pos_z_m()** Current survey-in mean position ECEF Z coordinate, m.
-
-**Eigen::Vector3d svin_ecef_pos_m()** Current survey-in mean position ECEF vector, m.
 
 **float svin_ecef_pos_acc_m()** Current survey-in mean position accuracy, m.
 

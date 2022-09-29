@@ -26,12 +26,11 @@
 #if defined(ARDUINO)
 #include <Arduino.h>
 #else
-#include "core/core.h"
-#endif
 #include <cstddef>
 #include <cstdint>
-#include "eigen.h"  // NOLINT
-#include "ubx.h"  // NOLINT
+#include "core/core.h"
+#endif
+#include "ubx.h"
 #include "ubx_defs.h"  // NOLINT
 #include "ubx_nav.h"  // NOLINT
 
@@ -45,11 +44,11 @@ bool Ubx::Begin(int32_t baud) {
   bus_->end();
   bus_->begin(baud);
   bus_->flush();
-  t_ms_ = 0;
-  while (t_ms_ < COMM_TIMEOUT_MS_)
+  while (comm_timeout_count_ < COMM_TIMEOUT_TRIES_)
     if (ParseMsg()) {
       return true;
     }
+    delay(COMM_TIMEOUT_DELAY_MS_);
   return false;
 }
 bool Ubx::Read() {
