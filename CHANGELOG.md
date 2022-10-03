@@ -1,5 +1,8 @@
 # Changelog
 
+## v6.0.2
+- Updated core to support MMOD
+
 ## v6.0.1
 - Fixed bug in converting from deg to rad where precision could be lost with lat / lon
 
