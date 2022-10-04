@@ -1,5 +1,8 @@
 # Changelog
 
+## v6.0.4
+- Updated core to v3.1.2
+
 ## v6.0.3
 - Fixed a bug in init where it could get stuck in Begin method.
 
