@@ -142,9 +142,9 @@ class Ubx {
   void ProcessNavData();
   /* Communication */
   HardwareSerial* bus_;
-  int8_t comm_timeout_count_; 
-  static const int8_t COMM_TIMEOUT_TRIES_ = 10;
-  static const int16_t COMM_TIMEOUT_DELAY_MS_ = 1000; 
+  int16_t comm_timeout_count_ = 0; 
+  static const int16_t COMM_TIMEOUT_TRIES_ = 1000;
+  static const int16_t COMM_TIMEOUT_DELAY_MS_ = 10; 
   /* Max payload bytes supported */
   static constexpr size_t UBX_MAX_PAYLOAD_ = 128;
   /* Parsing */

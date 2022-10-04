@@ -1,5 +1,8 @@
 # Changelog
 
+## v6.0.3
+- Fixed a bug in init where it could get stuck in Begin method.
+
 ## v6.0.2
 - Updated core to support MMOD
 

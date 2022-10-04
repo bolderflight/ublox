@@ -32,9 +32,12 @@ int main() {
   /* Serial to display data */
   Serial.begin(115200);
   while(!Serial) {}
-  /* GNSS on Serial3 */
-  gnss.Config(&Serial3);
-  gnss.Begin(921600);
+  /* GNSS on Serial1 */
+  gnss.Config(&Serial1);
+  if (!gnss.Begin(115200)) {
+    Serial.println("Failed to establish communication with GNSS RX");
+    while (1) {}
+  }
   while (1) {
     if(gnss.Read()) {
       Serial.print(gnss.fix());

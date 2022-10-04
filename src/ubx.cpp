@@ -44,11 +44,12 @@ bool Ubx::Begin(int32_t baud) {
   bus_->end();
   bus_->begin(baud);
   bus_->flush();
-  while (comm_timeout_count_ < COMM_TIMEOUT_TRIES_)
+  while (comm_timeout_count_++ < COMM_TIMEOUT_TRIES_) {
     if (ParseMsg()) {
       return true;
     }
     delay(COMM_TIMEOUT_DELAY_MS_);
+  }
   return false;
 }
 bool Ubx::Read() {
