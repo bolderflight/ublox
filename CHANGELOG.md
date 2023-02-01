@@ -1,5 +1,8 @@
 # Changelog
 
+## v6.0.6
+- Removing the bus->end call in the Begin method, this caused some microcontrollers to lock up.
+
 ## v6.0.5
 - Updated core to v3.1.3
 

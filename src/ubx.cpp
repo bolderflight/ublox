@@ -41,7 +41,6 @@ void Ubx::Config(HardwareSerial* bus) {
   bus_ = bus;
 }
 bool Ubx::Begin(int32_t baud) {
-  bus_->end();
   bus_->begin(baud);
   bus_->flush();
   while (comm_timeout_count_++ < COMM_TIMEOUT_TRIES_) {
